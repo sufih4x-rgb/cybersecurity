@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCore | Control Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* White Sidebar with Glowing Green Buttons */
+        .glow-btn {
+            background: white;
+            color: #16a34a;
+            border: 2px solid #dcfce7;
+            transition: all 0.3s ease;
+        }
+        .glow-btn:hover {
+            background: #22c55e;
+            color: white !important;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+            transform: scale(1.02);
+            border-color: #22c55e;
+        }
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: white;
+            border-right: 1px solid #f1f5f9;
+            z-index: 50;
+        }
+        .main-content { margin-left: 280px; min-height: 100vh; }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; padding: 10px; }
+            .sidebar span, .sidebar h1 { display: none; }
+            .main-content { margin-left: 80px; }
+        }
+    </style>
+</head>
+<body class="bg-[#f8fafc]">
 
+    <aside class="sidebar shadow-sm flex flex-col justify-between">
+        <div class="p-6">
+            <h1 class="text-2xl font-black text-green-600 mb-10 tracking-tighter italic">
+                CYBER<span class="text-gray-800">CORE</span>
+            </h1>
+            
+            <nav class="space-y-4">
+                <button onclick="location.href='tracking.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-location-crosshairs w-8 text-lg"></i>
+                    <span>Track Location</span>
+                </button>
+                
+                <button onclick="location.href='send-location.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-link w-8 text-lg"></i>
+                    <span>Send Location</span>
+                </button>
+
+                <button onclick="location.href='get-location.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-satellite w-8 text-lg"></i>
+                    <span>Get Location</span>
+                </button>
+
+                <button onclick="location.href='reports.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-file-shield w-8 text-lg"></i>
+                    <span>Report Types</span>
+                </button>
+
+                <button onclick="location.href='sms-bomber.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-burst w-8 text-lg"></i>
+                    <span>SMS Bomber</span>
+                </button>
+
+                <button onclick="location.href='call-bomber.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-phone-volume w-8 text-lg"></i>
+                    <span>Call Bomber</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-6 border-t border-gray-50">
+            <button onclick="logout()" class="w-full flex items-center justify-center p-3 text-gray-400 hover:text-red-500 font-bold transition">
+                <i class="fa-solid fa-power-off mr-2"></i> <span>Terminate Session</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content p-8">
+        
+        <header class="flex flex-col md:flex-row md:items-center justify-between bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-8">
+            <div class="flex items-center space-x-4">
+                <div class="h-14 w-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 border border-green-100">
+                    <i class="fa-solid fa-user-shield text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-gray-800" id="displayUserName">Loading User...</h2>
+                    <p class="text-xs text-gray-400 font-bold tracking-widest" id="displayUserMob">ID: +91 0000000000</p>
+                </div>
+            </div>
+
+            <div class="mt-4 md:mt-0">
+                <div class="bg-green-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-green-100 flex items-center">
+                    <div class="mr-4 text-right">
+                        <p class="text-[9px] font-black uppercase opacity-80">Subscription Ends In</p>
+                        <p class="text-lg font-black leading-none"><span id="displayDays">0</span> Days</p>
+                    </div>
+                    <i class="fa-solid fa-calendar-check text-2xl opacity-50"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">System Status</p>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-gray-700">Encrypted</h3>
+                    <span class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Attacks</p>
+                <h3 class="text-xl font-bold text-gray-700">0 Total</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Cloud Sync</p>
+                <h3 class="text-xl font-bold text-blue-500">Connected</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-20 rounded-[3rem] border border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
+            <div class="h-24 w-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                <i class="fa-solid fa-terminal text-gray-200 text-4xl"></i>
+            </div>
+            <h3 class="text-2xl font-black text-gray-800 tracking-tight">WAITING FOR COMMAND</h3>
+            <p class="text-gray-400 mt-2 max-w-sm">Please select a utility from the sidebar to initialize the operation. All logs will be saved to your private database.</p>
+        </div>
+
+    </main>
+
+    <script>
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Security Check
+        const currentMobile = localStorage.getItem("loggedInUser");
+        if(!currentMobile) { window.location.href = "index.html"; }
+
+        function loadUserData() {
+            db.ref('users/' + currentMobile).on('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    // Update Header
+                    document.getElementById('displayUserName').innerText = data.name || "Authorized User";
+                    document.getElementById('displayUserMob').innerText = "ID: +91 " + data.mobile;
+                    
+                    // Expiry Calculation
+                    const now = Date.now();
+                    const diff = data.expiryDate - now;
+                    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                    
+                    document.getElementById('displayDays').innerText = daysLeft > 0 ? daysLeft : 0;
+
+                    // If expired, kick out
+                    if(daysLeft <= 0 && data.expiryDate !== 0) {
+                        alert("Session Expired. Please renew your plan.");
+                        logout();
+                    }
+                } else {
+                    logout();
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+
+        // Initialize
+        loadUserData();
+    </script>
+</body>
+</html>
