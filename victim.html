@@ -1,9 +1,16 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-    const firebaseConfig = { /* Wahi config jo aapne index mein dali hai */ };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const firebaseConfig = {
+  apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
+  authDomain: "in-app-update-21c61.firebaseapp.com",
+  databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
+  projectId: "in-app-update-21c61",
+  storageBucket: "in-app-update-21c61.firebasestorage.app",
+  messagingSenderId: "1013483026768",
+  appId: "1:1013483026768:web:c5f54060842f9672431455",
+  measurementId: "G-EW0YR2YQ5Q"
+};
 
     const params = new URLSearchParams(window.location.search);
     const adminId = params.get('id');
