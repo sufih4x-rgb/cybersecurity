@@ -3,79 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberCore | Secure Login</title>
+    <title>CyberCore | Gateway Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0f172a; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .cyber-input { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; color: white; transition: 0.3s; }
-        .cyber-input:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+        body { background: #0f172a; overflow: hidden; }
+        .glass-card { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .cyber-input { 
+            background: rgba(15, 23, 42, 0.8); 
+            border: 1px solid #334155; 
+            color: white; 
+            transition: all 0.3s ease; 
+        }
+        .cyber-input:focus { 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); 
+        }
+        .glow-text { text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        
+        /* Background Decoration */
+        .orb {
+            position: absolute; width: 300px; height: 300px;
+            background: linear-gradient(to right, #1d4ed8, #1e40af);
+            filter: blur(80px); opacity: 0.2; z-index: -1;
+            animation: move 20s infinite alternate;
+        }
+        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(100%, 100%); } }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="loginBox" class="glass-card p-8 rounded-3xl w-full max-w-md shadow-2xl">
-        <div class="text-center mb-8">
-            <div class="inline-block p-4 bg-blue-600/20 rounded-full mb-4">
-                <i class="fa-solid fa-shield-halved text-4xl text-blue-500"></i>
+    <div class="orb"></div>
+
+    <div id="loginBox" class="glass-card p-10 rounded-[2.5rem] w-full max-w-md animate-fade-in">
+        <div class="text-center mb-10">
+            <div class="inline-block p-5 bg-blue-600/20 rounded-3xl mb-4 border border-blue-500/30">
+                <i class="fa-solid fa-user-secret text-5xl text-blue-500"></i>
             </div>
-            <h1 class="text-3xl font-black text-white tracking-tighter">CYBER<span class="text-blue-500">CORE</span></h1>
-            <p class="text-gray-400 text-sm mt-2">Enter your credentials to access the terminal</p>
+            <h1 class="text-4xl font-black text-white tracking-tighter glow-text">CYBER<span class="text-blue-500">CORE</span></h1>
+            <p class="text-gray-400 text-xs mt-2 uppercase tracking-[0.2em] font-bold">Terminal Entry Protocol</p>
         </div>
 
-        <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Mobile Number</label>
-                <input type="number" id="mobileInput" placeholder="91XXXXXXXX" 
-                       class="cyber-input w-full p-4 rounded-xl outline-none text-lg font-mono">
+        <div class="space-y-5">
+            <div class="relative">
+                <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1 tracking-widest">Identification Number</label>
+                <div class="relative">
+                    <i class="fa-solid fa-phone absolute left-4 top-4 text-gray-500"></i>
+                    <input type="number" id="mobileInput" placeholder="Enter Mobile" 
+                           class="cyber-input w-full p-4 pl-12 rounded-2xl outline-none text-lg font-mono tracking-wider">
+                </div>
             </div>
             
-            <button onclick="checkUserStatus()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition duration-300 shadow-lg shadow-blue-900/20 uppercase tracking-widest">
-                Authorize Access
+            <button onclick="checkUserStatus()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/40 uppercase tracking-widest text-sm active:scale-95">
+                Execute Authorization
             </button>
         </div>
 
-        <p id="msg" class="text-center mt-6 text-sm font-medium"></p>
+        <p id="msg" class="text-center mt-6 text-xs font-bold uppercase tracking-tighter"></p>
     </div>
 
-    <div id="paymentBox" class="hidden glass-card p-8 rounded-3xl w-full max-w-md shadow-2xl">
-        <h2 class="text-2xl font-bold text-white text-center mb-6">Subscription Plans</h2>
+    <div id="paymentBox" class="hidden glass-card p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl">
+        <h2 class="text-2xl font-black text-white text-center mb-8 italic uppercase tracking-tighter">Plan <span class="text-blue-500">Initialization</span></h2>
         
-        <div class="grid grid-cols-3 gap-2 mb-6 text-center text-[10px] font-bold uppercase">
-            <div class="p-3 bg-slate-800 rounded-lg border border-blue-500/30 text-blue-400">1 Day<br><span class="text-white text-sm">₹50</span></div>
-            <div class="p-3 bg-slate-800 rounded-lg border border-blue-500/30 text-blue-400">1 Week<br><span class="text-white text-sm">₹300</span></div>
-            <div class="p-3 bg-slate-800 rounded-lg border border-blue-500/30 text-blue-400">1 Month<br><span class="text-white text-sm">₹1250</span></div>
+        <div class="grid grid-cols-3 gap-3 mb-8 text-center">
+            <div class="p-3 bg-slate-900/50 rounded-2xl border border-blue-500/20">
+                <p class="text-[9px] font-bold text-blue-400 uppercase">1 Day</p>
+                <p class="text-white font-black">₹50</p>
+            </div>
+            <div class="p-3 bg-slate-900/50 rounded-2xl border border-blue-500/20">
+                <p class="text-[9px] font-bold text-blue-400 uppercase">1 Week</p>
+                <p class="text-white font-black">₹300</p>
+            </div>
+            <div class="p-3 bg-slate-900/50 rounded-2xl border border-blue-500/20">
+                <p class="text-[9px] font-bold text-blue-400 uppercase">1 Month</p>
+                <p class="text-white font-black">₹1250</p>
+            </div>
         </div>
 
-        <div class="bg-white p-3 rounded-xl mb-6 flex justify-center">
-            <img id="adminQR" src="https://via.placeholder.com/200?text=Scan+to+Pay" class="w-48 h-48">
+        <div class="bg-white p-4 rounded-3xl mb-8 flex flex-col items-center">
+            <p class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest">Official Admin QR</p>
+            <img id="adminQR" src="https://via.placeholder.com/200?text=Scan+to+Pay" class="w-44 h-44 object-contain rounded-lg">
         </div>
 
         <div class="space-y-4">
-            <select id="planSelect" class="cyber-input w-full p-3 rounded-xl outline-none">
-                <option value="1">Daily Access (₹50)</option>
-                <option value="7">Weekly Access (₹300)</option>
-                <option value="30">Monthly Access (₹1250)</option>
+            <select id="planSelect" class="cyber-input w-full p-4 rounded-2xl outline-none font-bold text-sm cursor-pointer">
+                <option value="1">Daily Access Protocol (₹50)</option>
+                <option value="7">Weekly Access Protocol (₹300)</option>
+                <option value="30">Monthly Access Protocol (₹1250)</option>
             </select>
             <input type="text" id="utrInput" placeholder="Enter Transaction UTR" 
-                   class="cyber-input w-full p-3 rounded-xl outline-none font-mono">
+                   class="cyber-input w-full p-4 rounded-2xl outline-none font-mono text-center">
             
-            <button onclick="submitPayment()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition uppercase">
-                Submit Transaction
+            <button onclick="submitPayment()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-2xl transition shadow-lg shadow-green-900/20 uppercase tracking-widest">
+                Verify Transaction
             </button>
-            <button onclick="location.reload()" class="w-full text-gray-500 text-xs font-bold">CANCEL</button>
+            <button onclick="location.reload()" class="w-full text-gray-500 text-[10px] font-black tracking-[0.3em] hover:text-white transition uppercase">Abort Mission</button>
         </div>
     </div>
 
     <script>
-        // --- Paste Your Firebase Config Here ---
+        // --- ⚠️ APNI FIREBASE CONFIG YAHAN REPLACE KAREIN ⚠️ ---
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
-            databaseURL: "YOUR_DB_URL",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
             projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
         firebase.initializeApp(firebaseConfig);
@@ -83,7 +124,7 @@
 
         let currentMobile = "";
 
-        // Admin Settings Se QR Load Karein
+        // Admin Settings se QR Code real-time load karna
         db.ref('adminSettings/qrCode').on('value', snap => {
             if(snap.val()) document.getElementById('adminQR').src = snap.val();
         });
@@ -93,31 +134,38 @@
             const msg = document.getElementById('msg');
 
             if(mobile.length < 10) {
-                msg.className = "text-center mt-6 text-red-500 text-sm";
-                msg.innerText = "❌ Enter valid 10-digit number";
+                msg.className = "text-center mt-6 text-red-500 text-xs font-bold";
+                msg.innerText = "❌ ACCESS DENIED: INVALID ID";
                 return;
             }
 
             currentMobile = mobile;
-            msg.className = "text-center mt-6 text-blue-400 text-sm animate-pulse";
-            msg.innerText = "Verifying authorization...";
+            msg.className = "text-center mt-6 text-blue-400 text-xs font-bold animate-pulse";
+            msg.innerText = "SYNCING WITH MAINFRAME...";
 
             db.ref('users/' + mobile).once('value', snap => {
                 const data = snap.val();
                 const now = Date.now();
 
                 if(data) {
+                    // Check if User is Approved and Subscription is Valid
                     if(data.status === "Approved" && data.expiryDate > now) {
                         localStorage.setItem("loggedInUser", mobile);
-                        msg.innerText = "✅ Authorized! Loading Terminal...";
+                        msg.className = "text-center mt-6 text-green-500 text-xs font-bold";
+                        msg.innerText = "✅ AUTHORIZATION GRANTED! REDIRECTING...";
                         setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
                     } else if(data.status === "Pending") {
-                        alert("Your payment is under review. Please wait.");
+                        alert("Your ID is currently under manual review by Admin.");
+                        location.reload();
+                    } else if(data.status === "Banned") {
+                        alert("Your access has been revoked by the system administrator.");
                         location.reload();
                     } else {
+                        // User exists but plan expired
                         showPayment();
                     }
                 } else {
+                    // User doesn't exist
                     showPayment();
                 }
             });
@@ -132,18 +180,25 @@
             const utr = document.getElementById('utrInput').value;
             const plan = document.getElementById('planSelect').value;
 
-            if(!utr) { alert("UTR Number is required!"); return; }
+            if(!utr || utr.length < 6) { 
+                alert("Please enter a valid Transaction UTR Number."); 
+                return; 
+            }
 
+            // Create or Update User with Pending Status
             db.ref('users/' + currentMobile).set({
                 mobile: currentMobile,
                 utr: utr,
                 planDays: plan,
                 status: "Pending",
                 timestamp: Date.now(),
-                expiryDate: 0
+                expiryDate: 0,
+                name: "Cyber Member"
             }).then(() => {
-                alert("Request Sent! Wait for 5-10 mins for approval.");
+                alert("Payment successfully logged! Admin will authorize your access within 10-15 minutes.");
                 location.reload();
+            }).catch(err => {
+                alert("System Error: Unable to sync data.");
             });
         }
     </script>
