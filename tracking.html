@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Intelligence Tracker | CyberCore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        #map { height: 450px; width: 100%; border-radius: 24px; z-index: 1; }
+        .cyber-card { background: white; border: 1px solid #f0f0f0; transition: 0.3s; }
+        .cyber-card:hover { border-color: #22c55e; }
+        .status-pulse { height: 8px; width: 8px; background: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #22c55e; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen pb-10">
+
+    <nav class="bg-white p-4 border-b sticky top-0 z-[1001] shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='dashboard.html'" class="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 hover:text-green-600 transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h1 class="text-xl font-black text-gray-800 tracking-tighter uppercase italic">Target <span class="text-green-600">Surveillance</span></h1>
+            </div>
+            <div class="flex items-center space-x-2 text-xs font-bold text-gray-400">
+                <span class="status-pulse"></span>
+                <span>SECURE TERMINAL ACTIVE</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="cyber-card p-4 rounded-2xl shadow-sm">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">IP Address</p>
+                <p id="ipVal" class="text-sm font-mono font-bold text-gray-800">Fetching...</p>
+            </div>
+            <div class="cyber-card p-4 rounded-2xl shadow-sm">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Provider (ISP)</p>
+                <p id="ispVal" class="text-sm font-bold text-blue-600 truncate">Detecting...</p>
+            </div>
+            <div class="cyber-card p-4 rounded-2xl shadow-sm">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Latitude</p>
+                <p id="latVal" class="text-sm font-mono font-bold text-gray-800">0.000000</p>
+            </div>
+            <div class="cyber-card p-4 rounded-2xl shadow-sm">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Longitude</p>
+                <p id="lngVal" class="text-sm font-mono font-bold text-gray-800">0.000000</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="lg:col-span-3">
+                <div id="map" class="shadow-xl border-4 border-white"></div>
+            </div>
+            
+            <div class="lg:col-span-1 space-y-4">
+                <div class="bg-gray-900 p-6 rounded-3xl text-white shadow-xl">
+                    <h3 class="text-sm font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-gears mr-2 text-green-500"></i> CONTROL PANEL
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="trackByIP()" class="w-full bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-xl text-sm font-bold transition">
+                            Track by IP Address
+                        </button>
+                        <button onclick="startGPSTracking()" class="w-full bg-green-600 hover:bg-green-700 p-3 rounded-xl text-sm font-bold shadow-lg shadow-green-900/40 transition">
+                            High Precision GPS
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 mb-3">CURRENT LOCATION</p>
+                    <div class="flex items-center space-x-3">
+                        <div class="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <p id="cityVal" class="text-sm font-bold">Unknown City</p>
+                            <p id="countryVal" class="text-[10px] text-gray-400 uppercase">Searching...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-50 flex justify-between items-center">
+                <h3 class="font-black text-gray-800 tracking-tight italic uppercase text-sm">Tracking Transaction History</h3>
+                <button onclick="clearLogs()" class="text-[10px] font-bold text-red-500 hover:underline">CLEAR LOGS</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
+                        <tr>
+                            <th class="px-6 py-4">Timestamp</th>
+                            <th class="px-6 py-4">Method</th>
+                            <th class="px-6 py-4">Coordinates</th>
+                            <th class="px-6 py-4">ISP / Network</th>
+                            <th class="px-6 py-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTable" class="text-xs font-bold text-gray-600">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- Firebase Config ---
+        const firebaseConfig = { /* Aapki Config */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const userMobile = localStorage.getItem("loggedInUser");
+
+        // Map Initialization
+        var map = L.map('map').setView([20.5937, 78.9629], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        var marker, circle;
+
+        // Track by IP
+        async function trackByIP() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                
+                updateUI(data.latitude, data.longitude, data.ip, data.org, data.city, data.country_name);
+                saveLog(data.latitude, data.longitude, "IP-NETWORK", data.org);
+                updateMap(data.latitude, data.longitude, "IP Captured: " + data.ip, 5000);
+            } catch (e) { alert("IP Tracking Error"); }
+        }
+
+        // High Precision GPS
+        function startGPSTracking() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    updateUI(lat, lng, "LOCAL", "GPS-SATELLITE", "Live Area", "Current Device");
+                    saveLog(lat, lng, "GPS-PRECISION", "Direct GPS");
+                    updateMap(lat, lng, "Exact Target Found", pos.coords.accuracy);
+                }, (err) => { alert("Please allow GPS access"); });
+            }
+        }
+
+        function updateUI(lat, lng, ip, isp, city, country) {
+            document.getElementById('latVal').innerText = lat.toFixed(6);
+            document.getElementById('lngVal').innerText = lng.toFixed(6);
+            document.getElementById('ipVal').innerText = ip;
+            document.getElementById('ispVal').innerText = isp;
+            document.getElementById('cityVal').innerText = city;
+            document.getElementById('countryVal').innerText = country;
+        }
+
+        function updateMap(lat, lng, label, radius) {
+            if (marker) { map.removeLayer(marker); map.removeLayer(circle); }
+            marker = L.marker([lat, lng]).addTo(map).bindPopup(label).openPopup();
+            circle = L.circle([lat, lng], { radius: radius, color: '#22c55e', fillOpacity: 0.2 }).addTo(map);
+            map.setView([lat, lng], 14);
+        }
+
+        // Save Tracking to Firebase
+        function saveLog(lat, lng, method, isp) {
+            const logRef = db.ref('users/' + userMobile + '/trackingLogs');
+            logRef.push({
+                time: new Date().toLocaleString(),
+                method: method,
+                coords: lat.toFixed(4) + ", " + lng.toFixed(4),
+                isp: isp,
+                status: "Success"
+            });
+        }
+
+        // Load History from Firebase
+        function loadLogs() {
+            const table = document.getElementById('logTable');
+            db.ref('users/' + userMobile + '/trackingLogs').limitToLast(10).on('value', snap => {
+                table.innerHTML = "";
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        table.innerHTML = `
+                            <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-gray-400">${val.time}</td>
+                                <td class="px-6 py-4"><span class="bg-gray-100 px-2 py-1 rounded text-[10px]">${val.method}</span></td>
+                                <td class="px-6 py-4 text-green-600 font-mono">${val.coords}</td>
+                                <td class="px-6 py-4 text-gray-500">${val.isp}</td>
+                                <td class="px-6 py-4 font-bold text-green-500">● ${val.status}</td>
+                            </tr>
+                        ` + table.innerHTML;
+                    });
+                } else {
+                    table.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-300">No logs available in database.</td></tr>`;
+                }
+            });
+        }
+
+        function clearLogs() {
+            if(confirm("Are you sure you want to clear your tracking history?")) {
+                db.ref('users/' + userMobile + '/trackingLogs').remove();
+            }
+        }
+
+        window.onload = () => { trackByIP(); loadLogs(); };
+    </script>
+</body>
+</html>
