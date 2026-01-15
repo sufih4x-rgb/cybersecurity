@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin | CyberCore Surveillance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex">
+
+    <aside class="w-64 bg-black border-r border-gray-800 p-6 fixed h-full">
+        <h1 class="text-2xl font-black text-blue-500 mb-10 tracking-tighter">ADMIN<span class="text-white">OPS</span></h1>
+        <nav class="space-y-4">
+            <button onclick="showTab('stats')" class="w-full text-left p-3 rounded-xl hover:bg-gray-800 font-bold flex items-center">
+                <i class="fa-solid fa-chart-line mr-3 text-blue-500"></i> Global Stats
+            </button>
+            <button onclick="showTab('users')" class="w-full text-left p-3 rounded-xl hover:bg-gray-800 font-bold flex items-center">
+                <i class="fa-solid fa-users-viewfinder mr-3 text-green-500"></i> Manage Users
+            </button>
+            <button onclick="showTab('all-logs')" class="w-full text-left p-3 rounded-xl hover:bg-gray-800 font-bold flex items-center">
+                <i class="fa-solid fa-database mr-3 text-purple-500"></i> Global Logs
+            </button>
+            <button onclick="location.reload()" class="w-full text-left p-3 rounded-xl hover:bg-gray-800 font-bold flex items-center">
+                <i class="fa-solid fa-rotate mr-3 text-yellow-500"></i> Refresh Sync
+            </button>
+        </nav>
+    </aside>
+
+    <main class="ml-64 p-8 w-full">
+        <div id="tab-stats" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Total Operatives</p>
+                    <h2 id="totalUsers" class="text-3xl font-black text-blue-400">0</h2>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Live Tracking Hits</p>
+                    <h2 id="totalLogs" class="text-3xl font-black text-green-400">0</h2>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Pending Approvals</p>
+                    <h2 id="totalPending" class="text-3xl font-black text-yellow-400">0</h2>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-2 rounded-[2rem] border border-gray-700 overflow-hidden shadow-2xl">
+                <div id="adminMap" style="height: 450px;" class="rounded-[1.8rem]"></div>
+            </div>
+        </div>
+
+        <div id="tab-users" class="hidden space-y-6">
+            <div class="bg-gray-800 rounded-3xl border border-gray-700 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-black text-[10px] font-bold text-gray-500 uppercase">
+                        <tr>
+                            <th class="p-4">Mobile / ID</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">UTR Number</th>
+                            <th class="p-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList" class="text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-all-logs" class="hidden space-y-6">
+            <div class="bg-gray-800 rounded-3xl border border-gray-700 overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-black text-gray-500 uppercase">
+                        <tr>
+                            <th class="p-4">Agent (User)</th>
+                            <th class="p-4">Timestamp</th>
+                            <th class="p-4">Method</th>
+                            <th class="p-4">Coordinates</th>
+                            <th class="p-4">Target ISP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalLogs" class="font-mono">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            databaseURL: "YOUR_DB_URL",
+            projectId: "YOUR_PROJECT_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Map Setup
+        var adminMap = L.map('adminMap').setView([20, 78], 4);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(adminMap);
+
+        function showTab(tab) {
+            ['stats', 'users', 'all-logs'].forEach(t => document.getElementById('tab-'+t).classList.add('hidden'));
+            document.getElementById('tab-'+tab).classList.remove('hidden');
+        }
+
+        // Load All Data
+        db.ref('users').on('value', snap => {
+            const users = snap.val();
+            const userList = document.getElementById('userList');
+            const globalLogs = document.getElementById('globalLogs');
+            
+            userList.innerHTML = "";
+            globalLogs.innerHTML = "";
+            
+            let uCount = 0, pCount = 0, lCount = 0;
+
+            for(let id in users) {
+                const u = users[id];
+                uCount++;
+                if(u.status === "Pending") pCount++;
+
+                // Populate User Management Table
+                userList.innerHTML += `
+                    <tr class="border-b border-gray-700">
+                        <td class="p-4 font-bold text-blue-400">${u.mobile}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[10px] font-black ${u.status==='Approved'?'bg-green-900 text-green-400':'bg-yellow-900 text-yellow-400'}">${u.status}</span></td>
+                        <td class="p-4 text-gray-400">${u.utr || 'N/A'}</td>
+                        <td class="p-4 space-x-2">
+                            <button onclick="updateStatus('${u.mobile}', 'Approved')" class="text-green-500 font-bold hover:underline">Approve</button>
+                            <button onclick="updateStatus('${u.mobile}', 'Banned')" class="text-red-500 font-bold hover:underline">Ban</button>
+                        </td>
+                    </tr>
+                `;
+
+                // Populate Global Tracking Logs
+                if(u.trackingLogs) {
+                    for(let logId in u.trackingLogs) {
+                        const log = u.trackingLogs[logId];
+                        lCount++;
+                        globalLogs.innerHTML += `
+                            <tr class="border-b border-gray-700 hover:bg-gray-800">
+                                <td class="p-4 text-blue-400">${u.mobile}</td>
+                                <td class="p-4 text-gray-500">${log.time}</td>
+                                <td class="p-4"><span class="bg-gray-700 px-2 py-1 rounded text-white">${log.method}</span></td>
+                                <td class="p-4 text-green-500">${log.coords}</td>
+                                <td class="p-4 text-gray-400">${log.isp}</td>
+                            </tr>
+                        `;
+                        
+                        // Add to Map if valid coords
+                        if(log.coords && log.coords !== "Denied") {
+                            const [lat, lng] = log.coords.split(',');
+                            L.marker([parseFloat(lat), parseFloat(lng)]).addTo(adminMap)
+                             .bindPopup(`<b>Agent:</b> ${u.mobile}<br><b>Time:</b> ${log.time}<br><b>Method:</b> ${log.method}`);
+                        }
+                    }
+                }
+            }
+            document.getElementById('totalUsers').innerText = uCount;
+            document.getElementById('totalPending').innerText = pCount;
+            document.getElementById('totalLogs').innerText = lCount;
+        });
+
+        function updateStatus(mob, status) {
+            const expiry = status === 'Approved' ? Date.now() + (7 * 24 * 60 * 60 * 1000) : 0;
+            db.ref('users/' + mob).update({ status: status, expiryDate: expiry });
+        }
+    </script>
+</body>
+</html>
