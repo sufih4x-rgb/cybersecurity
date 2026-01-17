@@ -3,65 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberCore | Terminal Access</title>
+    <title>CyberCore | Gateway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0f172a; }
-        .glass-card { 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.1); 
+        body { background: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .swipe-track { background: #e2e8f0; height: 60px; border-radius: 30px; position: relative; padding: 5px; cursor: pointer; }
+        .swipe-handle { 
+            width: 50px; height: 50px; background: white; border-radius: 25px; 
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: absolute; left: 5px; transition: transform 0.1s ease-out; z-index: 10;
         }
-        .cyber-input { background: #0f172a; border: 1px solid #334155; color: #fff; }
-        .cyber-input:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .swipe-text { position: absolute; width: 100%; text-align: center; line-height: 50px; font-weight: 900; font-size: 10px; color: #94a3b8; pointer-events: none; text-transform: uppercase; letter-spacing: 1px; }
+        .glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #22c55e !important; }
+        .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); border-color: #ef4444 !important; }
+        .modal-blur { backdrop-filter: blur(8px); background: rgba(0,0,0,0.4); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-6">
 
-    <div id="loginSection" class="glass-card p-8 md:p-12 rounded-[2.5rem] w-full max-w-md shadow-2xl transition-all duration-500">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-black text-white tracking-tighter italic">CYBER<span class="text-blue-500">CORE</span></h1>
-            <p class="text-gray-400 text-[10px] uppercase tracking-[0.3em] font-bold mt-2">Authorization Required</p>
+    <div id="loginSection" class="w-full max-w-sm bg-white p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 transition-all duration-500">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-black text-gray-800 tracking-tighter italic">CYBER<span class="text-blue-600">CORE</span></h1>
+            <p id="systemStatus" class="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mt-2">Checking System Integrity...</p>
         </div>
 
-        <div class="space-y-4">
-            <div>
-                <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Mobile Identification</label>
-                <input type="number" id="mobileInput" placeholder="Enter Mobile Number" 
-                       class="cyber-input w-full p-4 rounded-2xl outline-none font-mono tracking-widest text-lg">
+        <div class="space-y-6">
+            <div id="inputBorder" class="border-2 border-gray-100 p-1 rounded-3xl transition-all duration-500">
+                <input type="number" id="mobileInput" placeholder="Enter Identification" 
+                       class="w-full p-4 rounded-2xl outline-none font-mono text-center text-lg bg-transparent">
             </div>
-            
-            <button onclick="checkAccess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition shadow-xl shadow-blue-900/20 uppercase tracking-widest text-sm">
-                Initialize System
-            </button>
+
+            <div class="swipe-track" id="swipeTrack">
+                <div class="swipe-text">Swipe to Authorize</div>
+                <div class="swipe-handle" id="swipeHandle">
+                    <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
         </div>
-        <p id="statusMsg" class="text-center mt-6 text-xs font-bold uppercase"></p>
+        <p id="statusMsg" class="text-center mt-6 text-[10px] font-black uppercase tracking-widest text-gray-400"></p>
     </div>
 
-    <div id="paymentSection" class="hidden glass-card p-8 md:p-12 rounded-[2.5rem] w-full max-w-md shadow-2xl animate-pulse-slow">
-        <h2 class="text-xl font-black text-white text-center mb-6 uppercase tracking-tighter italic">Plan <span class="text-blue-500">Activation</span></h2>
-        
-        <div class="bg-white p-4 rounded-3xl mb-6 flex flex-col items-center">
-            <p class="text-[9px] text-gray-400 font-bold mb-3 uppercase tracking-widest text-center">Scan to Pay & Send UTR</p>
-            <img id="displayQR" src="https://via.placeholder.com/200?text=Loading+QR..." class="w-44 h-44 object-contain rounded-lg">
-        </div>
-
-        <div class="space-y-4">
-            <input type="text" id="utrInput" placeholder="Enter 12-Digit UTR Number" 
-                   class="cyber-input w-full p-4 rounded-2xl outline-none font-mono text-center text-sm">
+    <div id="paymentModal" class="hidden fixed inset-0 z-50 modal-blur flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+            <div class="p-8 text-center border-b border-gray-50">
+                <h2 class="text-xl font-black italic uppercase tracking-tighter mb-2">Plan <span class="text-blue-600">Required</span></h2>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan and submit UTR to activate</p>
+            </div>
             
-            <button onclick="submitUTR()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-2xl transition shadow-lg shadow-green-900/20 uppercase tracking-widest">
-                Verify Payment
-            </button>
-            <button onclick="location.reload()" class="w-full text-gray-500 text-[10px] font-black tracking-widest uppercase mt-2">Cancel Process</button>
+            <div class="p-8 space-y-6">
+                <div class="bg-gray-50 p-4 rounded-3xl flex justify-center border-2 border-dashed border-gray-200">
+                    <img id="adminQR" src="" class="w-44 h-44 object-contain rounded-xl">
+                </div>
+                
+                <input type="text" id="utrInput" placeholder="12-Digit UTR Number" 
+                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center font-mono text-sm outline-none focus:border-blue-500">
+                
+                <div class="flex flex-col space-y-3">
+                    <button onclick="submitPayment()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest shadow-xl shadow-blue-100 active:scale-95 transition">
+                        Confirm Payment
+                    </button>
+                    <button onclick="closeModal()" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cancel Request</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- YOUR FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             authDomain: "in-app-update-21c61.firebaseapp.com",
@@ -69,73 +79,127 @@
             projectId: "in-app-update-21c61",
             storageBucket: "in-app-update-21c61.firebasestorage.app",
             messagingSenderId: "1013483026768",
-            appId: "1:1013483026768:web:c5f54060842f9672431455",
-            measurementId: "G-EW0YR2YQ5Q"
+            appId: "1:1013483026768:web:c5f54060842f9672431455"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let userMob = "";
+        // Admin QR Setup
+        db.ref('adminSettings/qrCode').on('value', s => { if(s.val()) document.getElementById('adminQR').src = s.val(); });
 
-        // Load Admin QR automatically
-        db.ref('adminSettings/qrCode').on('value', snap => {
-            if(snap.val()) document.getElementById('displayQR').src = snap.val();
-        });
+        // --- AUTO LOGIN CHECK ---
+        window.onload = () => {
+            const savedUser = localStorage.getItem("loggedInUser");
+            if(savedUser) {
+                document.getElementById('mobileInput').value = savedUser;
+                document.getElementById('systemStatus').innerText = "Session Found. Re-authenticating...";
+                // Short delay to show the effect
+                setTimeout(() => { processAccess(true); }, 1000); 
+            } else {
+                document.getElementById('systemStatus').innerText = "Neural Access Terminal";
+            }
+        };
 
-        function checkAccess() {
+        // Swipe Logic
+        const handle = document.getElementById('swipeHandle');
+        const track = document.getElementById('swipeTrack');
+        let isDragging = false;
+
+        handle.addEventListener('touchstart', (e) => isDragging = true);
+        handle.addEventListener('mousedown', (e) => isDragging = true);
+        window.addEventListener('mousemove', (e) => { if(isDragging) move(e.clientX); });
+        window.addEventListener('touchmove', (e) => { if(isDragging) move(e.touches[0].clientX); });
+        window.addEventListener('mouseup', endMove);
+        window.addEventListener('touchend', endMove);
+
+        function move(clientX) {
+            let rect = track.getBoundingClientRect();
+            let x = clientX - rect.left - 25;
+            let maxX = rect.width - 60;
+            if (x < 5) x = 5;
+            if (x > maxX) { x = maxX; if(isDragging) { isDragging = false; processAccess(false); } }
+            handle.style.transform = `translateX(${x}px)`;
+        }
+
+        function endMove() { if(!isDragging) return; isDragging = false; handle.style.transform = `translateX(5px)`; }
+
+        // --- AUTHENTICATION ENGINE ---
+        async function processAccess(isAuto) {
             const mobile = document.getElementById('mobileInput').value;
+            const border = document.getElementById('inputBorder');
             const msg = document.getElementById('statusMsg');
 
             if(mobile.length < 10) {
-                msg.innerText = "❌ Invalid Mobile Number";
-                msg.className = "text-center mt-6 text-red-500 text-xs font-bold";
+                border.classList.add('glow-red');
+                msg.innerText = "Access Denied: Invalid ID";
+                setTimeout(() => { border.classList.remove('glow-red'); handle.style.transform = `translateX(5px)`; }, 1000);
                 return;
             }
 
-            userMob = mobile;
-            msg.innerText = "🔍 Checking Database...";
-            msg.className = "text-center mt-6 text-blue-400 text-xs font-bold animate-pulse";
+            const intel = await fetch('https://ipapi.co/json/').then(r => r.json());
 
             db.ref('users/' + mobile).once('value', snap => {
-                const data = snap.val();
-                if(data) {
-                    if(data.status === "Approved" && data.expiryDate > Date.now()) {
-                        localStorage.setItem("loggedInUser", mobile);
-                        msg.innerText = "✅ Authorized! Redirecting...";
-                        setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
-                    } else if(data.status === "Pending") {
-                        alert("Your payment is under review. Please wait for admin approval.");
+                const user = snap.val();
+                
+                if(user) {
+                    const now = Date.now();
+                    const lastLogin = user.lastLoginTime || 0;
+                    const lastIP = user.lastIP || "";
+
+                    // Multi-Device Protection
+                    if(lastIP !== "" && lastIP !== intel.ip && (now - lastLogin) < 86400000) {
+                        alert("Security Alert: System Locked to previous device for 24h.");
+                        localStorage.removeItem("loggedInUser");
                         location.reload();
-                    } else if(data.status === "Banned") {
-                        alert("This account has been banned.");
+                        return;
+                    }
+
+                    if(user.status === "Approved") {
+                        border.classList.add('glow-green');
+                        msg.innerText = "Neural Handshake: Verified";
+                        
+                        db.ref('users/' + mobile).update({
+                            lastLoginTime: now,
+                            lastIP: intel.ip,
+                            lastLocation: `${intel.city}, ${intel.region}`,
+                            deviceAgent: navigator.userAgent
+                        });
+
+                        localStorage.setItem("loggedInUser", mobile);
+                        setTimeout(() => window.location.href = "dashboard.html", 1000);
+                    } else if(user.status === "Pending") {
+                        alert("Your activation request is pending admin review.");
+                        location.reload();
                     } else {
-                        // Plan Expired or Not set
-                        showPayment();
+                        showPaymentPopup(mobile);
                     }
                 } else {
-                    // New User
-                    showPayment();
+                    showPaymentPopup(mobile);
                 }
             });
         }
 
-        function showPayment() {
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('paymentSection').classList.remove('hidden');
+        function showPaymentPopup(m) {
+            window.tempMob = m;
+            document.getElementById('paymentModal').classList.remove('hidden');
         }
 
-        function submitUTR() {
-            const utr = document.getElementById('utrInput').value;
-            if(utr.length < 6) { alert("Enter valid UTR"); return; }
+        function closeModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+            handle.style.transform = `translateX(5px)`;
+        }
 
-            db.ref('users/' + userMob).set({
-                mobile: userMob,
+        function submitPayment() {
+            const utr = document.getElementById('utrInput').value;
+            if(utr.length < 10) return alert("Invalid UTR. Please enter the 12-digit code.");
+
+            db.ref('users/' + window.tempMob).set({
+                mobile: window.tempMob,
                 utr: utr,
                 status: "Pending",
-                timestamp: Date.now(),
-                expiryDate: 0
+                timestamp: Date.now()
             }).then(() => {
-                alert("Payment submitted! Admin will approve it shortly.");
+                alert("Data Logged. System will unlock once admin verifies the UTR.");
                 location.reload();
             });
         }
