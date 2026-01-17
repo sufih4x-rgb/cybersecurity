@@ -9,36 +9,42 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .admin-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 1.5rem; }
-        .btn-action { transition: all 0.2s; }
-        .btn-action:active { transform: scale(0.95); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        body { background-color: #f8fafc; color: #1e293b; font-family: 'Inter', sans-serif; }
+        .admin-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; }
+        .sidebar { background: white; border-right: 1px solid #e2e8f0; }
+        .nav-btn { transition: all 0.2s; color: #64748b; font-weight: 700; }
+        .nav-btn.active { background: #2563eb; color: white; }
+        .status-pill { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
-<body class="flex">
+<body class="flex min-h-screen">
 
-    <aside class="w-72 bg-slate-950 h-screen sticky top-0 p-8 border-r border-slate-900">
-        <div class="mb-10">
-            <h1 class="text-2xl font-black text-blue-500 italic tracking-tighter">ADMIN<span class="text-white">CORE</span></h1>
-            <div class="flex items-center mt-2 space-x-2">
-                <span class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
-                <p class="text-[10px] font-bold text-slate-500 uppercase">System Online</p>
+    <aside class="w-64 sidebar h-screen sticky top-0 p-6 flex flex-col justify-between">
+        <div>
+            <div class="mb-10 px-2">
+                <h1 class="text-2xl font-black text-blue-600 italic tracking-tighter">ADMIN<span class="text-slate-800">CORE</span></h1>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Access Management</p>
+            </div>
+
+            <nav class="space-y-1">
+                <button onclick="switchTab('users')" id="tab-users-btn" class="nav-btn active w-full text-left p-4 rounded-2xl flex items-center">
+                    <i class="fa-solid fa-user-check mr-3 text-sm"></i> Operatives
+                </button>
+                <button onclick="switchTab('logs')" id="tab-logs-btn" class="nav-btn w-full text-left p-4 rounded-2xl flex items-center">
+                    <i class="fa-solid fa-location-crosshairs mr-3 text-sm"></i> Intelligence
+                </button>
+                <button onclick="switchTab('settings')" id="tab-settings-btn" class="nav-btn w-full text-left p-4 rounded-2xl flex items-center">
+                    <i class="fa-solid fa-sliders mr-3 text-sm"></i> Core Settings
+                </button>
+            </nav>
+        </div>
+        
+        <div class="p-2">
+            <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                <p class="text-[10px] font-black text-blue-400 uppercase">System Status</p>
+                <p class="text-xs font-bold text-blue-700">All Nodes Secure</p>
             </div>
         </div>
-
-        <nav class="space-y-3">
-            <button onclick="switchTab('users')" id="tab-users-btn" class="w-full text-left p-4 rounded-2xl bg-blue-600 text-white font-bold flex items-center">
-                <i class="fa-solid fa-user-shield mr-3"></i> Operatives
-            </button>
-            <button onclick="switchTab('logs')" id="tab-logs-btn" class="w-full text-left p-4 rounded-2xl text-slate-400 hover:bg-slate-900 font-bold flex items-center">
-                <i class="fa-solid fa-tower-broadcast mr-3"></i> Intelligence Logs
-            </button>
-            <button onclick="switchTab('settings')" id="tab-settings-btn" class="w-full text-left p-4 rounded-2xl text-slate-400 hover:bg-slate-900 font-bold flex items-center">
-                <i class="fa-solid fa-sliders mr-3"></i> Core Settings
-            </button>
-        </nav>
     </aside>
 
     <main class="flex-1 p-10">
@@ -46,70 +52,74 @@
         <div id="sec-users" class="space-y-6">
             <div class="flex justify-between items-end">
                 <div>
-                    <h2 class="text-3xl font-black text-white italic">OPERATIVE <span class="text-blue-500">MANAGEMENT</span></h2>
-                    <p class="text-slate-500 text-xs font-bold uppercase mt-1">Manage access and verify payment UTRs</p>
+                    <h2 class="text-3xl font-black text-slate-800 italic uppercase">Operative <span class="text-blue-600">Database</span></h2>
+                    <p class="text-slate-400 text-xs font-bold mt-1">Verify UTR and manage user lifecycles</p>
                 </div>
-                <div class="bg-slate-900 px-6 py-3 rounded-2xl border border-slate-800">
-                    <p class="text-[10px] text-slate-500 font-black">ACTIVE USERS</p>
-                    <p id="userCount" class="text-xl font-black text-blue-400">0</p>
+                <div class="bg-white px-6 py-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Users</p>
+                    <p id="userCount" class="text-2xl font-black text-blue-600">0</p>
                 </div>
             </div>
 
-            <div class="admin-card overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-950/50 text-[10px] font-black text-slate-500 uppercase border-b border-slate-800">
+            <div class="admin-card overflow-hidden shadow-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase border-b border-slate-200">
                         <tr>
-                            <th class="p-5">Identification</th>
+                            <th class="p-5">User ID</th>
                             <th class="p-5">Payment UTR</th>
-                            <th class="p-5">Access Status</th>
-                            <th class="p-5">Control</th>
+                            <th class="p-5">Plan Requested</th>
+                            <th class="p-5">Status</th>
+                            <th class="p-5 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="userTableBody" class="divide-y divide-slate-800/50">
-                        </tbody>
+                    <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="sec-logs" class="hidden space-y-6">
-            <h2 class="text-3xl font-black text-white italic uppercase">Global <span class="text-green-500">Intelligence</span></h2>
-            <div class="admin-card overflow-hidden">
-                <div class="max-h-[600px] overflow-y-auto">
-                    <table class="w-full text-left text-xs font-mono">
-                        <thead class="bg-slate-950 sticky top-0 border-b border-slate-800 text-slate-500">
-                            <tr>
-                                <th class="p-4">Agent ID</th>
-                                <th class="p-4 text-green-500">Target Coordinates</th>
-                                <th class="p-4">ISP Info</th>
-                                <th class="p-4">Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="globalLogsBody">
-                            </tbody>
-                    </table>
-                </div>
+            <h2 class="text-3xl font-black text-slate-800 italic uppercase">Neural <span class="text-green-600">Intelligence</span></h2>
+            <div class="admin-card overflow-hidden shadow-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase">
+                        <tr>
+                            <th class="p-5">Agent</th>
+                            <th class="p-5">Location Data</th>
+                            <th class="p-5">IP Address</th>
+                            <th class="p-5">Last Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalLogsBody" class="text-sm divide-y divide-slate-100"></tbody>
+                </table>
             </div>
         </div>
 
-        <div id="sec-settings" class="hidden space-y-6">
-            <h2 class="text-3xl font-black text-white italic uppercase">System <span class="text-blue-500">Configuration</span></h2>
-            <div class="admin-card p-10 max-w-xl">
-                <div class="mb-8">
-                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-3">Global Payment QR (Image URL)</label>
-                    <div class="flex items-center space-x-6">
-                        <img id="qrPreview" src="" class="w-32 h-32 bg-white p-2 rounded-2xl border-4 border-slate-800 shadow-2xl">
-                        <input type="text" id="qrInput" class="flex-1 p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none focus:border-blue-600 transition font-mono text-xs">
+        <div id="sec-settings" class="hidden space-y-8">
+            <h2 class="text-3xl font-black text-slate-800 italic uppercase">System <span class="text-blue-600">Config</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="admin-card p-8 shadow-sm">
+                    <h3 class="font-black text-slate-400 text-[10px] uppercase mb-6 tracking-widest">Global UPI Provider</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="upiInput" placeholder="Enter UPI ID (e.g. pay@okicici)" 
+                               class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 font-mono text-sm">
+                        <button onclick="updateUPI()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-100 hover:bg-blue-700 transition">Save UPI Details</button>
                     </div>
                 </div>
-                <button onclick="updateSettings()" class="w-full bg-blue-600 hover:bg-blue-700 p-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-blue-900/20 btn-action">
-                    Apply Global Changes
-                </button>
+
+                <div class="admin-card p-8 shadow-sm">
+                    <h3 class="font-black text-slate-400 text-[10px] uppercase mb-6 tracking-widest">Subscription Engine</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="planName" placeholder="Plan Title" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold">
+                        <input type="number" id="planPrice" placeholder="Price (INR)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold">
+                        <button onclick="addPlan()" class="w-full bg-slate-800 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-900 transition">Push New Plan</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        // --- FIREBASE INTEGRATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             authDomain: "in-app-update-21c61.firebaseapp.com",
@@ -122,84 +132,76 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // UI Tabs Control
         function switchTab(target) {
             ['users', 'logs', 'settings'].forEach(t => {
                 document.getElementById('sec-'+t).classList.add('hidden');
-                document.getElementById('tab-'+t+'-btn').className = "w-full text-left p-4 rounded-2xl text-slate-400 hover:bg-slate-900 font-bold flex items-center";
+                document.getElementById('tab-'+t+'-btn').classList.remove('active');
             });
             document.getElementById('sec-'+target).classList.remove('hidden');
-            document.getElementById('tab-'+target+'-btn').className = "w-full text-left p-4 rounded-2xl bg-blue-600 text-white font-bold flex items-center";
+            document.getElementById('tab-'+target+'-btn').classList.add('active');
         }
 
-        // Real-time Database Listener
         db.ref('users').on('value', snap => {
             const data = snap.val();
-            const userTable = document.getElementById('userTableBody');
-            const logsTable = document.getElementById('globalLogsBody');
-            
-            userTable.innerHTML = "";
-            logsTable.innerHTML = "";
-            let uCount = 0;
+            const table = document.getElementById('userTableBody');
+            const logs = document.getElementById('globalLogsBody');
+            table.innerHTML = ""; logs.innerHTML = "";
+            let count = 0;
 
             for(let id in data) {
-                const user = data[id];
-                uCount++;
-
-                // Build User Table
-                const statusColor = user.status === 'Approved' ? 'text-green-500 bg-green-500/10' : 'text-yellow-500 bg-yellow-500/10';
-                userTable.innerHTML += `
-                    <tr class="hover:bg-slate-900/50 transition">
-                        <td class="p-5 font-bold text-slate-200">${id}</td>
-                        <td class="p-5 font-mono text-xs text-slate-400">${user.utr || 'N/A'}</td>
-                        <td class="p-5">
-                            <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase ${statusColor}">${user.status}</span>
-                        </td>
-                        <td class="p-5 space-x-3">
-                            <button onclick="modStatus('${id}', 'Approved')" class="text-green-500 hover:underline font-bold text-xs uppercase">Grant</button>
-                            <button onclick="modStatus('${id}', 'Banned')" class="text-red-500 hover:underline font-bold text-xs uppercase">Revoke</button>
+                const u = data[id]; count++;
+                const statusClass = u.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
+                
+                table.innerHTML += `
+                    <tr>
+                        <td class="p-5 font-bold">${id}</td>
+                        <td class="p-5 font-mono text-xs text-slate-500">${u.utr || 'N/A'}</td>
+                        <td class="p-5 text-xs font-bold text-blue-600">${u.selectedPlan || 'Trial'}</td>
+                        <td class="p-5"><span class="status-pill ${statusClass}">${u.status}</span></td>
+                        <td class="p-5 text-right">
+                            <button onclick="updateStatus('${id}', 'Approved')" class="text-blue-600 font-black text-[10px] uppercase mr-3">Approve</button>
+                            <button onclick="updateStatus('${id}', 'Banned')" class="text-red-500 font-black text-[10px] uppercase">Ban</button>
                         </td>
                     </tr>
                 `;
 
-                // Build Global Intelligence Logs
-                if(user.trackingLogs) {
-                    Object.values(user.trackingLogs).forEach(log => {
-                        logsTable.innerHTML = `
-                            <tr class="border-b border-slate-900/50 hover:bg-slate-900/80">
-                                <td class="p-4 text-blue-500 font-bold">${id}</td>
-                                <td class="p-4 text-green-400 font-bold underline cursor-pointer">${log.coords}</td>
-                                <td class="p-4 text-slate-500">${log.isp || 'Unknown Carrier'}</td>
-                                <td class="p-4 text-slate-600">${log.time}</td>
-                            </tr>
-                        ` + logsTable.innerHTML;
-                    });
+                if(u.lastIP) {
+                    logs.innerHTML = `
+                        <tr>
+                            <td class="p-5 font-bold">${id}</td>
+                            <td class="p-5 text-slate-600 text-xs">${u.lastLocation || 'Calculating...'}</td>
+                            <td class="p-5 text-slate-600 font-mono text-xs">${u.lastIP}</td>
+                            <td class="p-5 text-slate-400 text-[10px] uppercase font-bold">${new Date(u.lastLoginTime).toLocaleString()}</td>
+                        </tr>
+                    ` + logs.innerHTML;
                 }
             }
-            document.getElementById('userCount').innerText = uCount;
+            document.getElementById('userCount').innerText = count;
         });
 
-        // Function: Approve/Ban User
-        function modStatus(id, stat) {
-            const expiry = stat === 'Approved' ? Date.now() + (7 * 24 * 60 * 60 * 1000) : 0;
-            db.ref('users/' + id).update({
-                status: stat,
-                expiryDate: expiry
-            }).then(() => alert("Operative " + id + " updated to " + stat));
+        function updateStatus(id, stat) {
+            const expiry = stat === 'Approved' ? Date.now() + (30 * 24 * 60 * 60 * 1000) : 0;
+            db.ref('users/' + id).update({ status: stat, expiryDate: expiry })
+            .then(() => alert(`User ${id} status updated to ${stat}`));
         }
 
-        // Settings Logic (QR Update)
-        db.ref('adminSettings/qrCode').on('value', snap => {
-            if(snap.val()) {
-                document.getElementById('qrPreview').src = snap.val();
-                document.getElementById('qrInput').value = snap.val();
-            }
-        });
-
-        function updateSettings() {
-            const newQR = document.getElementById('qrInput').value;
-            db.ref('adminSettings/qrCode').set(newQR).then(() => alert("System QR updated successfully!"));
+        function updateUPI() {
+            const upi = document.getElementById('upiInput').value;
+            db.ref('adminSettings/upiId').set(upi).then(() => alert("UPI ID Synchronized."));
         }
+
+        function addPlan() {
+            const name = document.getElementById('planName').value;
+            const price = document.getElementById('planPrice').value;
+            if(!name || !price) return;
+            db.ref('plans').push({ name, price }).then(() => {
+                alert("Plan Pushed to Gateway.");
+                document.getElementById('planName').value = "";
+                document.getElementById('planPrice').value = "";
+            });
+        }
+
+        db.ref('adminSettings/upiId').once('value', s => { if(s.val()) document.getElementById('upiInput').value = s.val(); });
     </script>
 </body>
 </html>
