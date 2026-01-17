@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; }
+        body { background: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .swipe-track { background: #e2e8f0; height: 60px; border-radius: 30px; position: relative; padding: 5px; cursor: pointer; }
         .swipe-handle { 
             width: 50px; height: 50px; background: white; border-radius: 25px; 
@@ -19,15 +19,16 @@
         .swipe-text { position: absolute; width: 100%; text-align: center; line-height: 50px; font-weight: 900; font-size: 10px; color: #94a3b8; pointer-events: none; text-transform: uppercase; letter-spacing: 1px; }
         .glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #22c55e !important; }
         .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); border-color: #ef4444 !important; }
-        .modal-blur { backdrop-filter: blur(8px); background: rgba(0,0,0,0.4); }
+        .modal-blur { backdrop-filter: blur(12px); background: rgba(0,0,0,0.6); }
+        .plan-card.active { border-color: #2563eb; background: #eff6ff; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-6">
 
-    <div id="loginSection" class="w-full max-w-sm bg-white p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 transition-all duration-500">
+    <div id="loginSection" class="w-full max-w-sm bg-white p-8 rounded-[2.5rem] shadow-2xl border border-gray-100">
         <div class="text-center mb-10">
             <h1 class="text-3xl font-black text-gray-800 tracking-tighter italic">CYBER<span class="text-blue-600">CORE</span></h1>
-            <p id="systemStatus" class="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mt-2">Checking System Integrity...</p>
+            <p id="systemStatus" class="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mt-2">Neural Access Terminal</p>
         </div>
 
         <div class="space-y-6">
@@ -46,26 +47,33 @@
         <p id="statusMsg" class="text-center mt-6 text-[10px] font-black uppercase tracking-widest text-gray-400"></p>
     </div>
 
-    <div id="paymentModal" class="hidden fixed inset-0 z-50 modal-blur flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-            <div class="p-8 text-center border-b border-gray-50">
-                <h2 class="text-xl font-black italic uppercase tracking-tighter mb-2">Plan <span class="text-blue-600">Required</span></h2>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan and submit UTR to activate</p>
+    <div id="paymentModal" class="hidden fixed inset-0 z-50 modal-blur flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-y-auto max-h-[90vh] animate-in zoom-in duration-300">
+            <div class="p-8 text-center border-b border-gray-50 sticky top-0 bg-white z-10">
+                <h2 class="text-xl font-black italic uppercase tracking-tighter mb-1">Access <span class="text-blue-600">Denied</span></h2>
+                <p id="modalSubText" class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Select a plan to initialize subscription</p>
             </div>
             
             <div class="p-8 space-y-6">
-                <div class="bg-gray-50 p-4 rounded-3xl flex justify-center border-2 border-dashed border-gray-200">
-                    <img id="adminQR" src="" class="w-44 h-44 object-contain rounded-xl">
+                <div id="plansContainer" class="grid grid-cols-2 gap-3">
+                    <p class="text-center col-span-2 text-xs text-gray-400">Fetching available plans...</p>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-[2.5rem] flex flex-col items-center border-2 border-dashed border-gray-200">
+                    <div id="qrPlaceholder" class="bg-white p-3 rounded-2xl shadow-sm mb-4">
+                        <img id="adminQR" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Waiting" class="w-40 h-40">
+                    </div>
+                    <p class="text-[9px] font-black text-gray-400 uppercase">Scan to Pay via UPI</p>
                 </div>
                 
-                <input type="text" id="utrInput" placeholder="12-Digit UTR Number" 
-                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center font-mono text-sm outline-none focus:border-blue-500">
+                <input type="text" id="utrInput" placeholder="Enter 12-Digit UTR Number" 
+                       class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center font-mono text-sm outline-none focus:border-blue-500 transition-all">
                 
                 <div class="flex flex-col space-y-3">
-                    <button onclick="submitPayment()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest shadow-xl shadow-blue-100 active:scale-95 transition">
-                        Confirm Payment
+                    <button onclick="submitPayment()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest shadow-xl shadow-blue-200 active:scale-95 transition">
+                        Submit Activation Request
                     </button>
-                    <button onclick="closeModal()" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cancel Request</button>
+                    <button onclick="closeModal()" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Return to Gateway</button>
                 </div>
             </div>
         </div>
@@ -84,29 +92,53 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Admin QR Setup
-        db.ref('adminSettings/qrCode').on('value', s => { if(s.val()) document.getElementById('adminQR').src = s.val(); });
+        let selectedPlan = null;
+        let adminUPI = "";
 
-        // --- AUTO LOGIN CHECK ---
-        window.onload = () => {
-            const savedUser = localStorage.getItem("loggedInUser");
-            if(savedUser) {
-                document.getElementById('mobileInput').value = savedUser;
-                document.getElementById('systemStatus').innerText = "Session Found. Re-authenticating...";
-                // Short delay to show the effect
-                setTimeout(() => { processAccess(true); }, 1000); 
-            } else {
-                document.getElementById('systemStatus').innerText = "Neural Access Terminal";
-            }
-        };
+        // --- ADMIN SETTINGS SYNC (UPI & PLANS) ---
+        function syncAdminSettings() {
+            // Get UPI and generate QR
+            db.ref('adminSettings/upiId').on('value', s => {
+                adminUPI = s.val() || "example@upi";
+                updateQR("0"); // Default QR
+            });
 
-        // Swipe Logic
+            // Get Dynamic Plans
+            db.ref('plans').on('value', snap => {
+                const container = document.getElementById('plansContainer');
+                container.innerHTML = "";
+                snap.forEach(child => {
+                    const plan = child.val();
+                    container.innerHTML += `
+                        <div onclick="selectPlan('${plan.price}', '${plan.name}', this)" 
+                             class="plan-card border-2 border-gray-100 p-4 rounded-3xl cursor-pointer hover:border-blue-200 transition-all text-center">
+                            <p class="text-[8px] font-black text-gray-400 uppercase">${plan.name}</p>
+                            <p class="text-lg font-black text-gray-800">₹${plan.price}</p>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function updateQR(amount) {
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${adminUPI}&pn=CyberCore&am=${amount}&cu=INR`;
+            document.getElementById('adminQR').src = qrUrl;
+        }
+
+        function selectPlan(price, name, el) {
+            selectedPlan = { price, name };
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            updateQR(price);
+        }
+
+        // --- SWIPE LOGIC ---
         const handle = document.getElementById('swipeHandle');
         const track = document.getElementById('swipeTrack');
         let isDragging = false;
 
-        handle.addEventListener('touchstart', (e) => isDragging = true);
-        handle.addEventListener('mousedown', (e) => isDragging = true);
+        handle.addEventListener('touchstart', () => isDragging = true);
+        handle.addEventListener('mousedown', () => isDragging = true);
         window.addEventListener('mousemove', (e) => { if(isDragging) move(e.clientX); });
         window.addEventListener('touchmove', (e) => { if(isDragging) move(e.touches[0].clientX); });
         window.addEventListener('mouseup', endMove);
@@ -117,70 +149,46 @@
             let x = clientX - rect.left - 25;
             let maxX = rect.width - 60;
             if (x < 5) x = 5;
-            if (x > maxX) { x = maxX; if(isDragging) { isDragging = false; processAccess(false); } }
+            if (x > maxX) { x = maxX; if(isDragging) { isDragging = false; processAccess(); } }
             handle.style.transform = `translateX(${x}px)`;
         }
 
         function endMove() { if(!isDragging) return; isDragging = false; handle.style.transform = `translateX(5px)`; }
 
         // --- AUTHENTICATION ENGINE ---
-        async function processAccess(isAuto) {
+        async function processAccess() {
             const mobile = document.getElementById('mobileInput').value;
-            const border = document.getElementById('inputBorder');
-            const msg = document.getElementById('statusMsg');
-
             if(mobile.length < 10) {
-                border.classList.add('glow-red');
-                msg.innerText = "Access Denied: Invalid ID";
-                setTimeout(() => { border.classList.remove('glow-red'); handle.style.transform = `translateX(5px)`; }, 1000);
+                alert("Invalid Identification ID");
+                handle.style.transform = `translateX(5px)`;
                 return;
             }
 
-            const intel = await fetch('https://ipapi.co/json/').then(r => r.json());
-
             db.ref('users/' + mobile).once('value', snap => {
                 const user = snap.val();
-                
                 if(user) {
                     const now = Date.now();
-                    const lastLogin = user.lastLoginTime || 0;
-                    const lastIP = user.lastIP || "";
+                    const expiry = user.expiryDate || 0;
 
-                    // Multi-Device Protection
-                    if(lastIP !== "" && lastIP !== intel.ip && (now - lastLogin) < 86400000) {
-                        alert("Security Alert: System Locked to previous device for 24h.");
-                        localStorage.removeItem("loggedInUser");
-                        location.reload();
-                        return;
-                    }
-
-                    if(user.status === "Approved") {
-                        border.classList.add('glow-green');
-                        msg.innerText = "Neural Handshake: Verified";
-                        
-                        db.ref('users/' + mobile).update({
-                            lastLoginTime: now,
-                            lastIP: intel.ip,
-                            lastLocation: `${intel.city}, ${intel.region}`,
-                            deviceAgent: navigator.userAgent
-                        });
-
+                    if(user.status === "Approved" && expiry > now) {
                         localStorage.setItem("loggedInUser", mobile);
-                        setTimeout(() => window.location.href = "dashboard.html", 1000);
+                        window.location.href = "dashboard.html";
+                    } else if(user.status === "Banned") {
+                        showPaymentPopup("ACCESS REVOKED: You don't have a plan. Buy and start.");
                     } else if(user.status === "Pending") {
-                        alert("Your activation request is pending admin review.");
+                        alert("Your request is already under verification.");
                         location.reload();
                     } else {
-                        showPaymentPopup(mobile);
+                        showPaymentPopup("EXPIRED: You don't have an active plan. Buy to start.");
                     }
                 } else {
-                    showPaymentPopup(mobile);
+                    showPaymentPopup("NO PLAN: You haven't purchased any plan yet.");
                 }
             });
         }
 
-        function showPaymentPopup(m) {
-            window.tempMob = m;
+        function showPaymentPopup(msg) {
+            document.getElementById('modalSubText').innerText = msg;
             document.getElementById('paymentModal').classList.remove('hidden');
         }
 
@@ -191,18 +199,25 @@
 
         function submitPayment() {
             const utr = document.getElementById('utrInput').value;
-            if(utr.length < 10) return alert("Invalid UTR. Please enter the 12-digit code.");
+            const mobile = document.getElementById('mobileInput').value;
+            if(!selectedPlan) return alert("Please select a plan first.");
+            if(utr.length < 10) return alert("Invalid UTR. Enter 12-digit code.");
 
-            db.ref('users/' + window.tempMob).set({
-                mobile: window.tempMob,
+            db.ref('users/' + mobile).set({
+                mobile: mobile,
                 utr: utr,
+                selectedPlan: selectedPlan.name,
+                requestedAmount: selectedPlan.price,
                 status: "Pending",
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                expiryDate: 0 // Reset or stay 0 until admin approves
             }).then(() => {
-                alert("Data Logged. System will unlock once admin verifies the UTR.");
+                alert("Activation Request Sent. Admin will verify your UTR.");
                 location.reload();
             });
         }
+
+        syncAdminSettings();
     </script>
 </body>
 </html>
