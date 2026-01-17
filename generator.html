@@ -1,1 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Intel | Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #020617; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .input-style { background: #0b1224; border: 1px solid #1e293b; padding: 14px; border-radius: 12px; width: 100%; outline: none; transition: 0.3s; color: #60a5fa; font-size: 14px; }
+        .input-style:focus { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+    <div class="max-w-md w-full glass p-8 rounded-[2rem] shadow-2xl">
+        <h1 class="text-3xl font-black italic text-blue-500 mb-2">CYBER<span class="text-white">INTEL</span></h1>
+        <p class="text-[10px] text-slate-500 uppercase tracking-[0.3em] mb-8 font-bold">Advanced Tracing Protocol</p>
+        
+        <div class="space-y-5">
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Telegram Chat ID</label>
+                <input type="text" id="tgID" placeholder="Enter Chat ID (e.g. 12345678)" class="input-style mt-1">
+            </div>
 
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Success Redirect URL</label>
+                <input type="text" id="redURL" placeholder="https://google.com" class="input-style mt-1">
+            </div>
+
+            <button onclick="generate()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg transition-all active:scale-95">Create Intelligence Link</button>
+
+            <div id="result" class="hidden animate-pulse mt-6 p-4 border border-dashed border-blue-500/50 rounded-xl bg-blue-500/5">
+                <p class="text-[10px] text-blue-400 font-bold mb-2 uppercase">Copy & Share Link:</p>
+                <input type="text" id="finalLink" readonly class="w-full bg-transparent text-[12px] font-mono text-green-400 outline-none">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generate() {
+            const tg = document.getElementById('tgID').value;
+            const red = encodeURIComponent(document.getElementById('redURL').value || "https://google.com");
+            if(!tg) return alert("Telegram ID is required!");
+
+            const link = window.location.origin + "/track.html?tid=" + tg + "&rd=" + red;
+            document.getElementById('finalLink').value = link;
+            document.getElementById('result').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
