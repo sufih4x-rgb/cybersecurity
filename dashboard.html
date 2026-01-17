@@ -10,18 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* White Sidebar with Glowing Green Buttons */
         .glow-btn {
             background: white;
             color: #16a34a;
             border: 2px solid #dcfce7;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .glow-btn:hover {
             background: #22c55e;
             color: white !important;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
-            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+            transform: translateY(-2px);
             border-color: #22c55e;
         }
         .sidebar {
@@ -41,160 +40,185 @@
             .sidebar span, .sidebar h1 { display: none; }
             .main-content { margin-left: 80px; }
         }
+
+        .status-pulse {
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc]">
 
     <aside class="sidebar shadow-sm flex flex-col justify-between">
-        <div class="p-6">
+        <div class="p-6 overflow-y-auto">
             <h1 class="text-2xl font-black text-green-600 mb-10 tracking-tighter italic">
                 CYBER<span class="text-gray-800">CORE</span>
             </h1>
             
-            <nav class="space-y-4">
-                <button onclick="location.href='tracking.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+            <nav class="space-y-3">
+                <button onclick="navigate('tracking')" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
                     <i class="fa-solid fa-location-crosshairs w-8 text-lg"></i>
                     <span>Track Location</span>
                 </button>
                 
-                <button onclick="location.href='send-location.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                <button onclick="navigate('send-location')" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
                     <i class="fa-solid fa-link w-8 text-lg"></i>
                     <span>Send Location</span>
                 </button>
 
-                <button onclick="location.href='get-location.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                <button onclick="navigate('get-location')" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
                     <i class="fa-solid fa-satellite w-8 text-lg"></i>
                     <span>Get Location</span>
                 </button>
 
-                <button onclick="location.href='reports.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
-                    <i class="fa-solid fa-file-shield w-8 text-lg"></i>
-                    <span>Report Types</span>
-                </button>
-
-                <button onclick="location.href='sms-bomber.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                <button onclick="navigate('sms-bomber')" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
                     <i class="fa-solid fa-burst w-8 text-lg"></i>
                     <span>SMS Bomber</span>
                 </button>
-
-                <button onclick="location.href='call-bomber.html'" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                
+                <button onclick="navigate('call-bomber')" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
                     <i class="fa-solid fa-phone-volume w-8 text-lg"></i>
                     <span>Call Bomber</span>
+                </button>
+                
+                <button onclick="navigate('reports')" class="glow-btn w-full flex items-center p-4 rounded-2xl font-bold">
+                    <i class="fa-solid fa-file-shield w-8 text-lg"></i>
+                    <span>Cyber Reports</span>
                 </button>
             </nav>
         </div>
 
         <div class="p-6 border-t border-gray-50">
-            <button onclick="logout()" class="w-full flex items-center justify-center p-3 text-gray-400 hover:text-red-500 font-bold transition">
-                <i class="fa-solid fa-power-off mr-2"></i> <span>Terminate Session</span>
+            <button onclick="logout()" class="w-full flex items-center justify-center p-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
+                <i class="fa-solid fa-power-off mr-2"></i> <span>Terminate</span>
             </button>
         </div>
     </aside>
 
     <main class="main-content p-8">
-        
-        <header class="flex flex-col md:flex-row md:items-center justify-between bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-8">
+        <header class="flex flex-col md:flex-row md:items-center justify-between bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 mb-8">
             <div class="flex items-center space-x-4">
-                <div class="h-14 w-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 border border-green-100">
+                <div class="h-14 w-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 border border-green-100 shadow-inner">
                     <i class="fa-solid fa-user-shield text-2xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-xl font-black text-gray-800" id="displayUserName">Loading User...</h2>
-                    <p class="text-xs text-gray-400 font-bold tracking-widest" id="displayUserMob">ID: +91 0000000000</p>
+                    <h2 class="text-xl font-black text-gray-800" id="displayUserName">Verified User</h2>
+                    <p class="text-[10px] text-gray-400 font-black tracking-[0.2em] uppercase" id="displayUserMob">Loading Identification...</p>
                 </div>
             </div>
 
             <div class="mt-4 md:mt-0">
-                <div class="bg-green-600 text-white px-6 py-3 rounded-2xl shadow-lg shadow-green-100 flex items-center">
-                    <div class="mr-4 text-right">
-                        <p class="text-[9px] font-black uppercase opacity-80">Subscription Ends In</p>
-                        <p class="text-lg font-black leading-none"><span id="displayDays">0</span> Days</p>
+                <div class="bg-gray-900 text-white px-8 py-4 rounded-[1.5rem] flex items-center shadow-2xl shadow-gray-200">
+                    <div class="mr-6 text-right">
+                        <p class="text-[8px] font-black uppercase opacity-60 tracking-widest">Access Remaining</p>
+                        <p class="text-xl font-black leading-none text-green-400"><span id="displayDays">0</span> Days</p>
                     </div>
-                    <i class="fa-solid fa-calendar-check text-2xl opacity-50"></i>
+                    <i class="fa-solid fa-clock-rotate-left text-2xl opacity-30"></i>
                 </div>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">System Status</p>
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-bold text-gray-700">Encrypted</h3>
-                    <span class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Network</p>
+                    <h3 class="text-lg font-bold text-gray-700">Encrypted Tunnel</h3>
                 </div>
+                <div class="status-pulse"></div>
             </div>
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Attacks</p>
-                <h3 class="text-xl font-bold text-gray-700">0 Total</h3>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Auth Status</p>
+                <h3 class="text-lg font-bold text-blue-600 italic">Secure Session</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Cloud Sync</p>
-                <h3 class="text-xl font-bold text-blue-500">Connected</h3>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cloud Sync</p>
+                <h3 class="text-lg font-bold text-gray-700">Active</h3>
             </div>
         </div>
 
-        <div class="bg-white p-20 rounded-[3rem] border border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
-            <div class="h-24 w-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                <i class="fa-solid fa-terminal text-gray-200 text-4xl"></i>
+        <div class="bg-white p-20 rounded-[3.5rem] border-2 border-dashed border-gray-100 flex flex-col items-center justify-center text-center">
+            <div class="h-24 w-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 shadow-inner">
+                <i class="fa-solid fa-terminal text-gray-300 text-4xl"></i>
             </div>
-            <h3 class="text-2xl font-black text-gray-800 tracking-tight">WAITING FOR COMMAND</h3>
-            <p class="text-gray-400 mt-2 max-w-sm">Please select a utility from the sidebar to initialize the operation. All logs will be saved to your private database.</p>
+            <h3 class="text-2xl font-black text-gray-800 tracking-tight italic uppercase">System <span class="text-green-600">Standby</span></h3>
+            <p class="text-gray-400 mt-4 max-w-sm text-sm font-medium">Please select a utility from the sidebar to initialize command sequences. All operations are logged under your encrypted ID.</p>
         </div>
-
     </main>
 
     <script>
-        // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = {
-  apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
-  authDomain: "in-app-update-21c61.firebaseapp.com",
-  databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
-  projectId: "in-app-update-21c61",
-  storageBucket: "in-app-update-21c61.firebasestorage.app",
-  messagingSenderId: "1013483026768",
-  appId: "1:1013483026768:web:c5f54060842f9672431455",
-  measurementId: "G-EW0YR2YQ5Q"
-};
+            apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
+            authDomain: "in-app-update-21c61.firebaseapp.com",
+            databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
+            projectId: "in-app-update-21c61",
+            storageBucket: "in-app-update-21c61.firebasestorage.app",
+            messagingSenderId: "1013483026768",
+            appId: "1:1013483026768:web:c5f54060842f9672431455"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Security Check
         const currentMobile = localStorage.getItem("loggedInUser");
-        if(!currentMobile) { window.location.href = "index.html"; }
 
-        function loadUserData() {
+        // --- SESSION INTEGRITY ENGINE ---
+        function syncSession() {
+            if(!currentMobile) { window.location.replace("index.html"); return; }
+
+            // Live monitoring of user status and expiry
             db.ref('users/' + currentMobile).on('value', snap => {
                 const data = snap.val();
-                if(data) {
-                    // Update Header
-                    document.getElementById('displayUserName').innerText = data.name || "Authorized User";
-                    document.getElementById('displayUserMob').innerText = "ID: +91 " + data.mobile;
-                    
-                    // Expiry Calculation
-                    const now = Date.now();
-                    const diff = data.expiryDate - now;
-                    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                    
-                    document.getElementById('displayDays').innerText = daysLeft > 0 ? daysLeft : 0;
 
-                    // If expired, kick out
-                    if(daysLeft <= 0 && data.expiryDate !== 0) {
-                        alert("Session Expired. Please renew your plan.");
-                        logout();
-                    }
-                } else {
+                // 1. REVOKE CHECK: If user is banned or status changed by Admin
+                if(!data || data.status === "Banned" || data.status === "Pending") {
+                    alert("⚠️ ACCESS TERMINATED: Your session has been revoked by Admin.");
                     logout();
+                    return;
+                }
+
+                // Update UI data
+                document.getElementById('displayUserName').innerText = data.name || "Authorized Operative";
+                document.getElementById('displayUserMob').innerText = "NODE-ID: +91 " + data.mobile;
+
+                // 2. EXPIRY CALCULATION: Real-time sync with Admin set date
+                const now = Date.now();
+                const expiry = data.expiryDate || 0;
+                const diff = expiry - now;
+
+                if(expiry === 0) {
+                    document.getElementById('displayDays').innerText = "NO-PLAN";
+                } else if(diff <= 0) {
+                    alert("🔴 PLAN EXPIRED: Access to CyberCore utilities has ended.");
+                    logout();
+                } else {
+                    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                    document.getElementById('displayDays').innerText = daysLeft;
                 }
             });
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = "index.html";
+        // Navigation with security check
+        function navigate(page) {
+            window.location.href = page + ".html";
         }
 
-        // Initialize
-        loadUserData();
+        function logout() {
+            localStorage.clear();
+            window.location.replace("index.html");
+        }
+
+        // Run session check on load
+        syncSession();
     </script>
 </body>
 </html>
