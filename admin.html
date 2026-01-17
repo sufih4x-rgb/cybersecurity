@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; color: #1e293b; font-family: 'Inter', sans-serif; }
-        .admin-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; }
+        .admin-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         .sidebar { background: white; border-right: 1px solid #e2e8f0; }
-        .nav-btn { transition: all 0.2s; color: #64748b; font-weight: 700; }
+        .nav-btn { transition: all 0.2s; color: #64748b; font-weight: 700; border-radius: 1rem; margin-bottom: 5px; }
         .nav-btn.active { background: #2563eb; color: white; }
-        .status-pill { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .status-badge { padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .plan-item { border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1rem; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body class="flex min-h-screen">
@@ -23,53 +24,37 @@
         <div>
             <div class="mb-10 px-2">
                 <h1 class="text-2xl font-black text-blue-600 italic tracking-tighter">ADMIN<span class="text-slate-800">CORE</span></h1>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Access Management</p>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Command Center v3.0</p>
             </div>
-
             <nav class="space-y-1">
-                <button onclick="switchTab('users')" id="tab-users-btn" class="nav-btn active w-full text-left p-4 rounded-2xl flex items-center">
-                    <i class="fa-solid fa-user-check mr-3 text-sm"></i> Operatives
+                <button onclick="switchTab('users')" id="tab-users-btn" class="nav-btn active w-full text-left p-4 flex items-center">
+                    <i class="fa-solid fa-users mr-3"></i> Operatives
                 </button>
-                <button onclick="switchTab('logs')" id="tab-logs-btn" class="nav-btn w-full text-left p-4 rounded-2xl flex items-center">
-                    <i class="fa-solid fa-location-crosshairs mr-3 text-sm"></i> Intelligence
+                <button onclick="switchTab('txns')" id="tab-txns-btn" class="nav-btn w-full text-left p-4 flex items-center">
+                    <i class="fa-solid fa-receipt mr-3"></i> Master Ledger
                 </button>
-                <button onclick="switchTab('settings')" id="tab-settings-btn" class="nav-btn w-full text-left p-4 rounded-2xl flex items-center">
-                    <i class="fa-solid fa-sliders mr-3 text-sm"></i> Core Settings
+                <button onclick="switchTab('plans')" id="tab-plans-btn" class="nav-btn w-full text-left p-4 flex items-center">
+                    <i class="fa-solid fa-box-open mr-3"></i> Plan Engine
+                </button>
+                <button onclick="switchTab('logs')" id="tab-logs-btn" class="nav-btn w-full text-left p-4 flex items-center">
+                    <i class="fa-solid fa-map-location-dot mr-3"></i> Intelligence
                 </button>
             </nav>
-        </div>
-        
-        <div class="p-2">
-            <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                <p class="text-[10px] font-black text-blue-400 uppercase">System Status</p>
-                <p class="text-xs font-bold text-blue-700">All Nodes Secure</p>
-            </div>
         </div>
     </aside>
 
     <main class="flex-1 p-10">
-        
         <div id="sec-users" class="space-y-6">
-            <div class="flex justify-between items-end">
-                <div>
-                    <h2 class="text-3xl font-black text-slate-800 italic uppercase">Operative <span class="text-blue-600">Database</span></h2>
-                    <p class="text-slate-400 text-xs font-bold mt-1">Verify UTR and manage user lifecycles</p>
-                </div>
-                <div class="bg-white px-6 py-4 rounded-2xl border border-slate-200 shadow-sm text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Users</p>
-                    <p id="userCount" class="text-2xl font-black text-blue-600">0</p>
-                </div>
-            </div>
-
-            <div class="admin-card overflow-hidden shadow-sm">
+            <h2 class="text-3xl font-black text-slate-800 italic uppercase">Pending <span class="text-blue-600">Verification</span></h2>
+            <div class="admin-card overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase border-b border-slate-200">
                         <tr>
-                            <th class="p-5">User ID</th>
-                            <th class="p-5">Payment UTR</th>
-                            <th class="p-5">Plan Requested</th>
+                            <th class="p-5">Agent ID</th>
+                            <th class="p-5">UTR Number</th>
+                            <th class="p-5">Requested Plan</th>
                             <th class="p-5">Status</th>
-                            <th class="p-5 text-right">Actions</th>
+                            <th class="p-5 text-right">Control</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
@@ -77,44 +62,57 @@
             </div>
         </div>
 
-        <div id="sec-logs" class="hidden space-y-6">
-            <h2 class="text-3xl font-black text-slate-800 italic uppercase">Neural <span class="text-green-600">Intelligence</span></h2>
-            <div class="admin-card overflow-hidden shadow-sm">
+        <div id="sec-txns" class="hidden space-y-6">
+            <h2 class="text-3xl font-black text-slate-800 italic uppercase">Master <span class="text-orange-600">Ledger</span></h2>
+            <div class="admin-card overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase">
                         <tr>
-                            <th class="p-5">Agent</th>
-                            <th class="p-5">Location Data</th>
-                            <th class="p-5">IP Address</th>
-                            <th class="p-5">Last Activity</th>
+                            <th class="p-5">Time</th>
+                            <th class="p-5">User ID</th>
+                            <th class="p-5">Plan</th>
+                            <th class="p-5">Price</th>
+                            <th class="p-5">Result</th>
                         </tr>
                     </thead>
-                    <tbody id="globalLogsBody" class="text-sm divide-y divide-slate-100"></tbody>
+                    <tbody id="ledgerTableBody" class="divide-y divide-slate-100 text-sm font-bold"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="sec-settings" class="hidden space-y-8">
-            <h2 class="text-3xl font-black text-slate-800 italic uppercase">System <span class="text-blue-600">Config</span></h2>
-            
+        <div id="sec-plans" class="hidden space-y-6">
+            <h2 class="text-3xl font-black text-slate-800 italic uppercase">Plan <span class="text-blue-600">Architect</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="admin-card p-8 shadow-sm">
-                    <h3 class="font-black text-slate-400 text-[10px] uppercase mb-6 tracking-widest">Global UPI Provider</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="upiInput" placeholder="Enter UPI ID (e.g. pay@okicici)" 
-                               class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 font-mono text-sm">
-                        <button onclick="updateUPI()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-100 hover:bg-blue-700 transition">Save UPI Details</button>
+                <div class="admin-card p-6">
+                    <h3 class="text-xs font-black text-slate-400 uppercase mb-4">Create New Plan</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="planName" placeholder="Plan Name" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none">
+                        <input type="number" id="planPrice" placeholder="Price (INR)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none">
+                        <input type="number" id="planDays" placeholder="Validity (Days)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none">
+                        <button onclick="addPlan()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase tracking-widest text-xs">Deploy Plan</button>
                     </div>
                 </div>
+                <div class="admin-card p-6 shadow-sm">
+                    <h3 class="text-xs font-black text-slate-400 uppercase mb-4">Active Inventory</h3>
+                    <div id="planList" class="max-h-[400px] overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
 
-                <div class="admin-card p-8 shadow-sm">
-                    <h3 class="font-black text-slate-400 text-[10px] uppercase mb-6 tracking-widest">Subscription Engine</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="planName" placeholder="Plan Title" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold">
-                        <input type="number" id="planPrice" placeholder="Price (INR)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold">
-                        <button onclick="addPlan()" class="w-full bg-slate-800 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-900 transition">Push New Plan</button>
-                    </div>
-                </div>
+        <div id="sec-logs" class="hidden space-y-6">
+            <h2 class="text-3xl font-black text-slate-800 italic uppercase">Intelligence <span class="text-green-600">Logs</span></h2>
+            <div class="admin-card overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase">
+                        <tr>
+                            <th class="p-5">User</th>
+                            <th class="p-5">Coordinates</th>
+                            <th class="p-5">IP / Node</th>
+                            <th class="p-5">Last Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalLogsBody" class="text-xs font-medium divide-y divide-slate-100"></tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -133,7 +131,7 @@
         const db = firebase.database();
 
         function switchTab(target) {
-            ['users', 'logs', 'settings'].forEach(t => {
+            ['users', 'plans', 'logs', 'txns'].forEach(t => {
                 document.getElementById('sec-'+t).classList.add('hidden');
                 document.getElementById('tab-'+t+'-btn').classList.remove('active');
             });
@@ -141,67 +139,110 @@
             document.getElementById('tab-'+target+'-btn').classList.add('active');
         }
 
+        // --- REAL-TIME DATA SYNC ---
         db.ref('users').on('value', snap => {
             const data = snap.val();
-            const table = document.getElementById('userTableBody');
-            const logs = document.getElementById('globalLogsBody');
-            table.innerHTML = ""; logs.innerHTML = "";
-            let count = 0;
+            const userTable = document.getElementById('userTableBody');
+            const logTable = document.getElementById('globalLogsBody');
+            userTable.innerHTML = ""; logTable.innerHTML = "";
 
             for(let id in data) {
-                const u = data[id]; count++;
-                const statusClass = u.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
+                const u = data[id];
+                const statusColor = u.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
                 
-                table.innerHTML += `
+                userTable.innerHTML += `
                     <tr>
                         <td class="p-5 font-bold">${id}</td>
-                        <td class="p-5 font-mono text-xs text-slate-500">${u.utr || 'N/A'}</td>
-                        <td class="p-5 text-xs font-bold text-blue-600">${u.selectedPlan || 'Trial'}</td>
-                        <td class="p-5"><span class="status-pill ${statusClass}">${u.status}</span></td>
+                        <td class="p-5 font-mono text-xs text-slate-500 font-bold">${u.utr || 'EMPTY'}</td>
+                        <td class="p-5 font-bold text-blue-600 text-xs">${u.selectedPlan || 'Trial'}</td>
+                        <td class="p-5"><span class="status-badge ${statusColor}">${u.status}</span></td>
                         <td class="p-5 text-right">
-                            <button onclick="updateStatus('${id}', 'Approved')" class="text-blue-600 font-black text-[10px] uppercase mr-3">Approve</button>
-                            <button onclick="updateStatus('${id}', 'Banned')" class="text-red-500 font-black text-[10px] uppercase">Ban</button>
+                            <button onclick="approveUser('${id}', '${u.selectedPlan}')" class="text-blue-600 font-black text-[10px] uppercase mr-3">Verify & Clear UTR</button>
+                            <button onclick="updateUserStatus('${id}', 'Banned')" class="text-red-500 font-black text-[10px] uppercase">Ban</button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
 
-                if(u.lastIP) {
-                    logs.innerHTML = `
-                        <tr>
-                            <td class="p-5 font-bold">${id}</td>
-                            <td class="p-5 text-slate-600 text-xs">${u.lastLocation || 'Calculating...'}</td>
-                            <td class="p-5 text-slate-600 font-mono text-xs">${u.lastIP}</td>
-                            <td class="p-5 text-slate-400 text-[10px] uppercase font-bold">${new Date(u.lastLoginTime).toLocaleString()}</td>
-                        </tr>
-                    ` + logs.innerHTML;
+                if(u.lastLocation) {
+                    logTable.innerHTML = `<tr><td class="p-5 font-bold">${id}</td><td class="p-5 text-blue-600 font-bold">${u.lastLocation}</td><td class="p-5 text-slate-500 font-mono">${u.lastIP || 'N/A'}</td><td class="p-5 text-slate-400 font-black uppercase text-[10px]">${new Date(u.lastLoginTime).toLocaleString()}</td></tr>` + logTable.innerHTML;
                 }
             }
-            document.getElementById('userCount').innerText = count;
         });
 
-        function updateStatus(id, stat) {
-            const expiry = stat === 'Approved' ? Date.now() + (30 * 24 * 60 * 60 * 1000) : 0;
-            db.ref('users/' + id).update({ status: stat, expiryDate: expiry })
-            .then(() => alert(`User ${id} status updated to ${stat}`));
-        }
+        // --- MASTER LEDGER ---
+        db.ref('ledger').on('value', snap => {
+            const data = snap.val();
+            const ledgerTable = document.getElementById('ledgerTableBody');
+            ledgerTable.innerHTML = "";
+            for(let id in data) {
+                const t = data[id];
+                ledgerTable.innerHTML = `<tr><td class="p-5 text-slate-400 text-[10px]">${new Date(t.timestamp).toLocaleString()}</td><td class="p-5">${t.userId}</td><td class="p-5 text-blue-600">${t.plan}</td><td class="p-5 text-green-600">₹${t.price}</td><td class="p-5 uppercase text-xs text-slate-500">${t.action}</td></tr>` + ledgerTable.innerHTML;
+            }
+        });
 
-        function updateUPI() {
-            const upi = document.getElementById('upiInput').value;
-            db.ref('adminSettings/upiId').set(upi).then(() => alert("UPI ID Synchronized."));
-        }
+        // --- PLAN MANAGEMENT ---
+        db.ref('plans').on('value', snap => {
+            const plans = snap.val();
+            const list = document.getElementById('planList');
+            list.innerHTML = "";
+            for(let key in plans) {
+                list.innerHTML += `
+                    <div class="plan-item flex justify-between items-center bg-slate-50">
+                        <div><p class="font-black text-slate-800">${plans[key].name}</p>
+                        <p class="text-[10px] font-bold text-blue-600">₹${plans[key].price} | ${plans[key].days} Days</p></div>
+                        <div class="space-x-2">
+                            <button onclick="editPlan('${key}', '${plans[key].name}', ${plans[key].price})" class="text-slate-400 hover:text-blue-600"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deletePlan('${key}')" class="text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>`;
+            }
+        });
 
         function addPlan() {
             const name = document.getElementById('planName').value;
             const price = document.getElementById('planPrice').value;
-            if(!name || !price) return;
-            db.ref('plans').push({ name, price }).then(() => {
-                alert("Plan Pushed to Gateway.");
-                document.getElementById('planName').value = "";
-                document.getElementById('planPrice').value = "";
+            const days = document.getElementById('planDays').value;
+            if(!name || !price || !days) return alert("Fill all fields");
+            db.ref('plans').push({ name, price, days }).then(() => {
+                document.getElementById('planName').value = ""; document.getElementById('planPrice').value = ""; document.getElementById('planDays').value = "";
             });
         }
 
-        db.ref('adminSettings/upiId').once('value', s => { if(s.val()) document.getElementById('upiInput').value = s.val(); });
+        function approveUser(userId, planName) {
+            db.ref('plans').once('value', snap => {
+                const plans = snap.val();
+                let validityDays = 30; // default
+                let planPrice = 0;
+                
+                for(let key in plans) {
+                    if(plans[key].name === planName) {
+                        validityDays = parseInt(plans[key].days);
+                        planPrice = plans[key].price;
+                    }
+                }
+
+                const expiry = Date.now() + (validityDays * 24 * 60 * 60 * 1000);
+                
+                // 1. Update User Status & DELETE UTR
+                db.ref('users/' + userId).update({ 
+                    status: 'Approved', 
+                    expiryDate: expiry,
+                    utr: null // AUTO DELETE UTR
+                }).then(() => {
+                    // 2. Add to Ledger
+                    db.ref('ledger').push({
+                        userId: userId,
+                        plan: planName,
+                        price: planPrice,
+                        timestamp: Date.now(),
+                        action: 'Approved'
+                    });
+                    alert(`User ${userId} Approved for ${validityDays} Days. UTR Cleared.`);
+                });
+            });
+        }
+
+        function deletePlan(key) { if(confirm("Delete plan?")) db.ref('plans/' + key).remove(); }
+        function updateUserStatus(id, stat) { db.ref('users/' + id).update({ status: stat }); }
     </script>
 </body>
 </html>
