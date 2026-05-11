@@ -2,106 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - IQ E-SPORTS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>IQ Admin Panel</title>
     <style>
-        :root { --p: #0052D4; }
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; padding: 15px; }
-        .box { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { border-bottom: 2px solid var(--p); padding-bottom: 10px; margin-bottom: 20px; font-size: 20px; }
-        .field { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { width: 100%; padding: 12px; background: var(--p); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .info-link { font-size: 11px; color: #666; margin-top: 4px; display: block; }
+        body { background: #f4f6f9; font-family: sans-serif; padding: 40px; }
+        .panel { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        h2 { color: #0052D4; text-align: center; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        label { font-size: 0.8rem; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+        button { width: 100%; padding: 15px; background: #0052D4; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div class="box">
-    <h2>Admin Control Panel</h2>
-    
-    <div class="field">
-        <label>Website Name / Title</label>
-        <input type="text" id="siteTitle">
+    <div class="panel">
+        <h2>SITE MANAGER</h2>
+        <label>APP NAME</label><input type="text" id="title">
+        <label>LOGO URL</label><input type="text" id="logo">
+        <label>SHORT DESC</label><input type="text" id="desc">
+        <label>APK DIRECT LINK</label><input type="text" id="apk">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label>MATCHES</label><input type="number" id="s1"></div>
+            <div><label>PLAYERS</label><input type="number" id="s2"></div>
+            <div><label>WINNINGS</label><input type="number" id="s3"></div>
+            <div><label>REWARDS</label><input type="number" id="s4"></div>
+        </div>
+        <button onclick="save()">SAVE & PUBLISH</button>
     </div>
 
-    <div class="field">
-        <label>APK Download Link</label>
-        <input type="text" id="apkLink" placeholder="Paste Google Drive/Mediafire link here">
-        <span class="info-link">Note: Use a direct download link for best experience.</span>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    <div class="field">
-        <label>Logo Image URL</label>
-        <input type="text" id="logoUrl">
-    </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyByev8IFSTDraEOnpiPnzuSdqJ-p58tksI",
+            authDomain: "h4xsmm06.firebaseapp.com",
+            databaseURL: "https://h4xsmm06-default-rtdb.firebaseio.com",
+            projectId: "h4xsmm06",
+            appId: "1:501931059240:web:5c016b0c37c7936c9dad1d"
+        };
 
-    <div class="field">
-        <label>Hero Description</label>
-        <textarea id="heroDesc" rows="2"></textarea>
-    </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    <div class="stats">
-        <div class="field"><label>Tournaments</label><input type="number" id="s1"></div>
-        <div class="field"><label>Total Players</label><input type="number" id="s2"></div>
-        <div class="field"><label>Winning Amount</label><input type="number" id="s3"></div>
-        <div class="field"><label>Rewards</label><input type="number" id="s4"></div>
-    </div>
+        onValue(ref(db, 'siteSettings'), (snap) => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('title').value = d.title;
+                document.getElementById('logo').value = d.logoUrl;
+                document.getElementById('desc').value = d.heroDesc;
+                document.getElementById('apk').value = d.apkLink;
+                document.getElementById('s1').value = d.s1;
+                document.getElementById('s2').value = d.s2;
+                document.getElementById('s3').value = d.s3;
+                document.getElementById('s4').value = d.s4;
+            }
+        });
 
-    <button onclick="saveSettings()">SAVE & UPDATE SITE</button>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyC4wpKbkeCzrN4IhwmSry4cr-j_f_V7CI0",
-        authDomain: "killing-stars.firebaseapp.com",
-        databaseURL: "https://killing-stars-default-rtdb.firebaseio.com",
-        projectId: "killing-stars",
-        storageBucket: "killing-stars.firebasestorage.app",
-        messagingSenderId: "467645322062",
-        appId: "1:467645322062:web:692e648254686cde03041f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // Get Current Data
-    onValue(ref(db, 'siteSettings'), (snapshot) => {
-        const d = snapshot.val();
-        if(d) {
-            document.getElementById('siteTitle').value = d.title;
-            document.getElementById('apkLink').value = d.apkLink;
-            document.getElementById('logoUrl').value = d.logoUrl;
-            document.getElementById('heroDesc').value = d.heroDesc;
-            document.getElementById('s1').value = d.s1;
-            document.getElementById('s2').value = d.s2;
-            document.getElementById('s3').value = d.s3;
-            document.getElementById('s4').value = d.s4;
+        window.save = function() {
+            set(ref(db, 'siteSettings'), {
+                title: document.getElementById('title').value,
+                logoUrl: document.getElementById('logo').value,
+                heroDesc: document.getElementById('desc').value,
+                apkLink: document.getElementById('apk').value,
+                s1: document.getElementById('s1').value,
+                s2: document.getElementById('s2').value,
+                s3: document.getElementById('s3').value,
+                s4: document.getElementById('s4').value
+            }).then(() => alert("Website Updated!"));
         }
-    });
-
-    window.saveSettings = () => {
-        set(ref(db, 'siteSettings'), {
-            title: document.getElementById('siteTitle').value,
-            apkLink: document.getElementById('apkLink').value,
-            logoUrl: document.getElementById('logoUrl').value,
-            heroDesc: document.getElementById('heroDesc').value,
-            s1: document.getElementById('s1').value,
-            s2: document.getElementById('s2').value,
-            s3: document.getElementById('s3').value,
-            s4: document.getElementById('s4').value,
-            aboutText: "We host elite tournaments for gaming enthusiasts."
-        }).then(() => {
-            Swal.fire('Updated!', 'Website changed successfully', 'success');
-        }).catch(e => alert("Error: " + e.message));
-    };
-</script>
+    </script>
 </body>
 </html>
