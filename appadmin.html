@@ -3,145 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Control - IQ E-SPORTS</title>
+    <title>Admin - IQ E-SPORTS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary: #0052D4; --dark: #020024; }
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
-        .admin-container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        h2 { color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 25px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: 600; margin-top: 20px; transition: 0.3s; }
-        .btn-save:hover { background: #003fa3; }
-        .upload-area { border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 10px; cursor: pointer; }
-        #uploadProgress { width: 100%; height: 10px; background: #eee; margin-top: 10px; display: none; border-radius: 5px; overflow: hidden; }
-        #progressBar { width: 0%; height: 100%; background: var(--primary); transition: 0.3s; }
+        :root { --p: #0052D4; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; padding: 15px; }
+        .box { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid var(--p); padding-bottom: 10px; margin-bottom: 20px; font-size: 20px; }
+        .field { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { width: 100%; padding: 12px; background: var(--p); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .info-link { font-size: 11px; color: #666; margin-top: 4px; display: block; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <h2><i class="fas fa-user-shield"></i> IQ E-SPORTS Control Panel</h2>
+<div class="box">
+    <h2>Admin Control Panel</h2>
     
-    <div class="form-group">
-        <label>App/Site Title</label>
-        <input type="text" id="siteTitle" placeholder="e.g. IQ E-SPORTS">
+    <div class="field">
+        <label>Website Name / Title</label>
+        <input type="text" id="siteTitle">
     </div>
 
-    <div class="form-group">
+    <div class="field">
+        <label>APK Download Link</label>
+        <input type="text" id="apkLink" placeholder="Paste Google Drive/Mediafire link here">
+        <span class="info-link">Note: Use a direct download link for best experience.</span>
+    </div>
+
+    <div class="field">
+        <label>Logo Image URL</label>
+        <input type="text" id="logoUrl">
+    </div>
+
+    <div class="field">
         <label>Hero Description</label>
         <textarea id="heroDesc" rows="2"></textarea>
     </div>
 
-    <div class="form-group">
-        <label>About Text</label>
-        <textarea id="aboutText" rows="3"></textarea>
+    <div class="stats">
+        <div class="field"><label>Tournaments</label><input type="number" id="s1"></div>
+        <div class="field"><label>Total Players</label><input type="number" id="s2"></div>
+        <div class="field"><label>Winning Amount</label><input type="number" id="s3"></div>
+        <div class="field"><label>Rewards</label><input type="number" id="s4"></div>
     </div>
 
-    <div class="grid-2">
-        <div class="form-group"><label>Logo URL</label><input type="text" id="logoUrl"></div>
-        <div class="form-group">
-            <label>Upload New APK File</label>
-            <input type="file" id="apkFile" accept=".apk">
-            <div id="uploadProgress"><div id="progressBar"></div></div>
-        </div>
-    </div>
-
-    <hr style="margin: 20px 0; opacity: 0.2;">
-    <h3>Live Stats</h3>
-    <div class="grid-2">
-        <div class="form-group"><label>Tournaments</label><input type="number" id="s1"></div>
-        <div class="form-group"><label>Participants</label><input type="number" id="s2"></div>
-        <div class="form-group"><label>Winning Amount</label><input type="number" id="s3"></div>
-        <div class="form-group"><label>Rewards</label><input type="number" id="s4"></div>
-    </div>
-
-    <button class="btn-save" onclick="updateData()">UPDATE WEBSITE</button>
+    <button onclick="saveSettings()">SAVE & UPDATE SITE</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
     const firebaseConfig = {
-  apiKey: "AIzaSyByev8IFSTDraEOnpiPnzuSdqJ-p58tksI",
-  authDomain: "h4xsmm06.firebaseapp.com",
-  databaseURL: "https://h4xsmm06-default-rtdb.firebaseio.com",
-  projectId: "h4xsmm06",
-  storageBucket: "h4xsmm06.appspot.com",
-  messagingSenderId: "501931059240",
-  appId: "1:501931059240:web:5c016b0c37c7936c9dad1d",
-  measurementId: "G-QY9R8BDK52"
-};
+        apiKey: "AIzaSyC4wpKbkeCzrN4IhwmSry4cr-j_f_V7CI0",
+        authDomain: "killing-stars.firebaseapp.com",
+        databaseURL: "https://killing-stars-default-rtdb.firebaseio.com",
+        projectId: "killing-stars",
+        storageBucket: "killing-stars.firebasestorage.app",
+        messagingSenderId: "467645322062",
+        appId: "1:467645322062:web:692e648254686cde03041f"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const storage = getStorage(app);
 
-    // Load current data
+    // Get Current Data
     onValue(ref(db, 'siteSettings'), (snapshot) => {
-        const data = snapshot.val();
-        if(data) {
-            document.getElementById('siteTitle').value = data.title;
-            document.getElementById('heroDesc').value = data.heroDesc;
-            document.getElementById('aboutText').value = data.aboutText;
-            document.getElementById('logoUrl').value = data.logoUrl;
-            document.getElementById('s1').value = data.s1;
-            document.getElementById('s2').value = data.s2;
-            document.getElementById('s3').value = data.s3;
-            document.getElementById('s4').value = data.s4;
-            window.currentApkLink = data.apkLink;
+        const d = snapshot.val();
+        if(d) {
+            document.getElementById('siteTitle').value = d.title;
+            document.getElementById('apkLink').value = d.apkLink;
+            document.getElementById('logoUrl').value = d.logoUrl;
+            document.getElementById('heroDesc').value = d.heroDesc;
+            document.getElementById('s1').value = d.s1;
+            document.getElementById('s2').value = d.s2;
+            document.getElementById('s3').value = d.s3;
+            document.getElementById('s4').value = d.s4;
         }
     });
 
-    window.updateData = async () => {
-        const file = document.getElementById('apkFile').files[0];
-        let apkUrl = window.currentApkLink;
-
-        if(file) {
-            const storageRef = sRef(storage, 'apps/' + file.name);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-            
-            document.getElementById('uploadProgress').style.display = 'block';
-
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    document.getElementById('progressBar').style.width = progress + '%';
-                }, 
-                (error) => { alert("Upload failed!"); }, 
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        saveToDB(downloadURL);
-                    });
-                }
-            );
-        } else {
-            saveToDB(apkUrl);
-        }
-    };
-
-    function saveToDB(apkUrl) {
+    window.saveSettings = () => {
         set(ref(db, 'siteSettings'), {
             title: document.getElementById('siteTitle').value,
-            heroDesc: document.getElementById('heroDesc').value,
-            aboutText: document.getElementById('aboutText').value,
+            apkLink: document.getElementById('apkLink').value,
             logoUrl: document.getElementById('logoUrl').value,
-            apkLink: apkUrl,
+            heroDesc: document.getElementById('heroDesc').value,
             s1: document.getElementById('s1').value,
             s2: document.getElementById('s2').value,
             s3: document.getElementById('s3').value,
-            s4: document.getElementById('s4').value
+            s4: document.getElementById('s4').value,
+            aboutText: "We host elite tournaments for gaming enthusiasts."
         }).then(() => {
-            Swal.fire('Success!', 'Website has been updated!', 'success');
-            document.getElementById('uploadProgress').style.display = 'none';
-        });
-    }
+            Swal.fire('Updated!', 'Website changed successfully', 'success');
+        }).catch(e => alert("Error: " + e.message));
+    };
 </script>
 </body>
 </html>
