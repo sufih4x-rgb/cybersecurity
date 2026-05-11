@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Killing Stars - Admin Control</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { color: #0052D4; text-align: center; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #0052D4; color: white; border: none; border-radius: 5px; margin-top: 25px; cursor: pointer; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Killing Stars Admin</h2>
+    
+    <label>App/Site Title</label>
+    <input type="text" id="title" placeholder="IQ E-SPORTS">
+
+    <label>Logo URL</label>
+    <input type="text" id="logoUrl" placeholder="Image URL here">
+
+    <label>Hero Description</label>
+    <input type="text" id="heroDesc">
+
+    <label>About Description</label>
+    <textarea id="aboutText" rows="3"></textarea>
+
+    <label>APK Direct Download Link</label>
+    <input type="text" id="apkLink" placeholder="Paste .apk direct link">
+
+    <div class="grid">
+        <div><label>Tournaments</label><input type="number" id="s1"></div>
+        <div><label>Participants</label><input type="number" id="s2"></div>
+        <div><label>Winning Amount</label><input type="number" id="s3"></div>
+        <div><label>Rewards</label><input type="number" id="s4"></div>
+    </div>
+
+    <button id="saveBtn">UPDATE LIVE SITE</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4wpKbkeCzrN4IhwmSry4cr-j_f_V7CI0",
+        authDomain: "killing-stars.firebaseapp.com",
+        databaseURL: "https://killing-stars-default-rtdb.firebaseio.com",
+        projectId: "killing-stars",
+        storageBucket: "killing-stars.firebasestorage.app",
+        messagingSenderId: "467645322062",
+        appId: "1:467645322062:web:692e648254686cde03041f",
+        measurementId: "G-LRGW6KGGY4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Load Existing Data
+    get(ref(db, 'siteSettings')).then((snapshot) => {
+        const d = snapshot.val();
+        if(d) {
+            document.getElementById('title').value = d.title || "";
+            document.getElementById('logoUrl').value = d.logoUrl || "";
+            document.getElementById('heroDesc').value = d.heroDesc || "";
+            document.getElementById('aboutText').value = d.aboutText || "";
+            document.getElementById('apkLink').value = d.apkLink || "";
+            document.getElementById('s1').value = d.s1 || 0;
+            document.getElementById('s2').value = d.s2 || 0;
+            document.getElementById('s3').value = d.s3 || 0;
+            document.getElementById('s4').value = d.s4 || 0;
+        }
+    });
+
+    // Save Data
+    document.getElementById('saveBtn').onclick = () => {
+        set(ref(db, 'siteSettings'), {
+            title: document.getElementById('title').value,
+            logoUrl: document.getElementById('logoUrl').value,
+            heroDesc: document.getElementById('heroDesc').value,
+            aboutText: document.getElementById('aboutText').value,
+            apkLink: document.getElementById('apkLink').value,
+            s1: document.getElementById('s1').value,
+            s2: document.getElementById('s2').value,
+            s3: document.getElementById('s3').value,
+            s4: document.getElementById('s4').value
+        }).then(() => alert("Website Updated Live!"));
+    };
+</script>
+</body>
+</html>
