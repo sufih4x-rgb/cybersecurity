@@ -3,162 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="metaTitle">IQ E-SPORTS - Play & Earn</title>
+    <title>Admin Control - IQ E-SPORTS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary-blue: #0052D4; --mid-blue: #4364F7; --dark-blue: #020024; --accent: #f1c40f; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: #fff; overflow-x: hidden; }
-        .hero { background: linear-gradient(135deg, var(--dark-blue) 0%, var(--primary-blue) 100%); padding: 30px 20px 60px; color: white; text-align: center; }
-        .nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 30px; }
-        .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-        .nav .brand img { width: 40px; border-radius: 5px; }
-        .app-logo-frame { width: 180px; height: 180px; background: #000; border: 4px solid var(--accent); border-radius: 15px; margin: 20px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .app-logo-frame i { font-size: 60px; color: var(--accent); }
-        .app-logo-frame span { color: var(--accent); font-weight: 800; font-size: 18px; margin-top: 10px; }
-        .hero h1 { font-size: 28px; margin-top: 15px; }
-        .hero p { font-size: 13px; opacity: 0.8; margin-bottom: 25px; }
-        .btn-download-top { border: 1px solid white; padding: 8px 25px; border-radius: 20px; color: white; text-decoration: none; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-        .about { padding: 50px 20px; text-align: center; }
-        .about h2 { font-size: 24px; margin-bottom: 10px; }
-        .divider { width: 100px; height: 3px; background: #333; margin: 0 auto 20px; position: relative; }
-        .divider::after { content: '♦♦♦'; background: #fff; padding: 0 10px; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 12px; }
-        .about-text { color: #666; font-size: 13px; line-height: 1.6; max-width: 500px; margin: 0 auto 30px; }
-        .feature-item { margin-bottom: 40px; }
-        .feature-item i { font-size: 35px; color: var(--primary-blue); margin-bottom: 15px; }
-        .feature-item h3 { font-size: 18px; margin-bottom: 10px; color: #222; }
-        .feature-item p { color: #777; font-size: 13px; padding: 0 10px; }
-        .stats-bg { background: linear-gradient(180deg, var(--mid-blue) 0%, var(--dark-blue) 100%); padding: 60px 20px; color: white; }
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 400px; margin: 0 auto; }
-        .stat-box { text-align: center; }
-        .stat-icon { width: 80px; height: 80px; background: rgba(255,255,255,0.15); border-radius: 50%; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .stat-box h3 { font-size: 22px; font-weight: 800; }
-        .stat-box p { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-        .download-banner { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000'); background-size: cover; padding: 80px 20px; text-align: center; color: white; }
-        .download-banner h2 { font-size: 26px; }
-        .btn-main-dl { margin-top: 30px; background: rgba(0,0,0,0.7); border: 1px solid #fff; padding: 12px 35px; border-radius: 40px; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 15px; }
-        .btn-main-dl i { font-size: 28px; }
-        .btn-main-dl .txt { text-align: left; }
-        .btn-main-dl .txt span { display: block; font-size: 10px; }
-        .btn-main-dl .txt b { font-size: 16px; }
+        :root { --primary: #0052D4; --dark: #020024; }
+        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
+        .admin-container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        h2 { color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: 600; margin-top: 20px; transition: 0.3s; }
+        .btn-save:hover { background: #003fa3; }
+        .upload-area { border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 10px; cursor: pointer; }
+        #uploadProgress { width: 100%; height: 10px; background: #eee; margin-top: 10px; display: none; border-radius: 5px; overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: var(--primary); transition: 0.3s; }
     </style>
 </head>
 <body>
 
-    <section class="hero">
-        <div class="nav">
-            <div class="brand">
-                <img id="dbLogo" src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="Icon">
-                <span class="dbTitle">IQ E-SPORTS</span>
-            </div>
-            <i class="fas fa-bars"></i>
+<div class="admin-container">
+    <h2><i class="fas fa-user-shield"></i> IQ E-SPORTS Control Panel</h2>
+    
+    <div class="form-group">
+        <label>App/Site Title</label>
+        <input type="text" id="siteTitle" placeholder="e.g. IQ E-SPORTS">
+    </div>
+
+    <div class="form-group">
+        <label>Hero Description</label>
+        <textarea id="heroDesc" rows="2"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>About Text</label>
+        <textarea id="aboutText" rows="3"></textarea>
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group"><label>Logo URL</label><input type="text" id="logoUrl"></div>
+        <div class="form-group">
+            <label>Upload New APK File</label>
+            <input type="file" id="apkFile" accept=".apk">
+            <div id="uploadProgress"><div id="progressBar"></div></div>
         </div>
-        <div class="app-logo-frame">
-            <i class="fas fa-gamepad"></i>
-            <span class="dbTitle">IQ E-SPORTS</span>
-        </div>
-        <h1 class="dbTitle">IQ E-SPORTS</h1>
-        <p id="dbHeroDesc">IQ E-sports Play tournaments and Earn</p>
-        <a href="#" class="btn-download-top dl-trigger dbApkLink">Download App</a>
-    </section>
+    </div>
 
-    <section class="about">
-        <h2 id="dbAboutTitle">About IQ E-SPORTS</h2>
-        <div class="divider"></div>
-        <p class="about-text" id="dbAboutText">We Host Esports Tournaments For Different Games.</p>
-        <div class="feature-item"><i class="fas fa-handshake"></i><h3>FAIR PLAY</h3><p>All matches are conducted fairly.</p></div>
-        <div class="feature-item"><i class="fas fa-tachometer-alt"></i><h3>Fast Performance</h3><p>Built using the latest technology.</p></div>
-        <div class="feature-item"><i class="fas fa-money-bill-wave"></i><h3>Earn Prizes & UC</h3><p>Earn Exciting Prizes & Diamonds.</p></div>
-    </section>
+    <hr style="margin: 20px 0; opacity: 0.2;">
+    <h3>Live Stats</h3>
+    <div class="grid-2">
+        <div class="form-group"><label>Tournaments</label><input type="number" id="s1"></div>
+        <div class="form-group"><label>Participants</label><input type="number" id="s2"></div>
+        <div class="form-group"><label>Winning Amount</label><input type="number" id="s3"></div>
+        <div class="form-group"><label>Rewards</label><input type="number" id="s4"></div>
+    </div>
 
-    <section class="stats-bg">
-        <div class="stat-grid">
-            <div class="stat-box"><div class="stat-icon"><i class="fas fa-user-astronaut"></i></div><h3 class="counter" id="stat1" data-target="0">0</h3><p>Tournaments Played</p></div>
-            <div class="stat-box"><div class="stat-icon"><i class="fas fa-users"></i></div><h3 class="counter" id="stat2" data-target="0">0</h3><p>Total Participants</p></div>
-            <div class="stat-box"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><h3 class="counter" id="stat3" data-target="0">0</h3><p>Winning Amount</p></div>
-            <div class="stat-box"><div class="stat-icon"><i class="fas fa-gift"></i></div><h3 class="counter" id="stat4" data-target="0">0</h3><p>Rewards</p></div>
-        </div>
-    </section>
+    <button class="btn-save" onclick="updateData()">UPDATE WEBSITE</button>
+</div>
 
-    <section class="download-banner">
-        <h2>Download Available</h2>
-        <div class="divider" style="background: #fff;"></div>
-        <p>Play and earn by downloading the latest version.</p>
-        <a href="#" class="btn-main-dl dl-trigger dbApkLink">
-            <i class="fab fa-android"></i>
-            <div class="txt"><span>Available App</span><b>Download Here</b></div>
-        </a>
-    </section>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    const firebaseConfig = {
+  apiKey: "AIzaSyByev8IFSTDraEOnpiPnzuSdqJ-p58tksI",
+  authDomain: "h4xsmm06.firebaseapp.com",
+  databaseURL: "https://h4xsmm06-default-rtdb.firebaseio.com",
+  projectId: "h4xsmm06",
+  storageBucket: "h4xsmm06.appspot.com",
+  messagingSenderId: "501931059240",
+  appId: "1:501931059240:web:5c016b0c37c7936c9dad1d",
+  measurementId: "G-QY9R8BDK52"
+};
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4wpKbkeCzrN4IhwmSry4cr-j_f_V7CI0",
-            authDomain: "killing-stars.firebaseapp.com",
-            databaseURL: "https://killing-stars-default-rtdb.firebaseio.com",
-            projectId: "killing-stars",
-            storageBucket: "killing-stars.firebasestorage.app",
-            messagingSenderId: "467645322062",
-            appId: "1:467645322062:web:692e648254686cde03041f",
-            measurementId: "G-LRGW6KGGY4"
-        };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    // Load current data
+    onValue(ref(db, 'siteSettings'), (snapshot) => {
+        const data = snapshot.val();
+        if(data) {
+            document.getElementById('siteTitle').value = data.title;
+            document.getElementById('heroDesc').value = data.heroDesc;
+            document.getElementById('aboutText').value = data.aboutText;
+            document.getElementById('logoUrl').value = data.logoUrl;
+            document.getElementById('s1').value = data.s1;
+            document.getElementById('s2').value = data.s2;
+            document.getElementById('s3').value = data.s3;
+            document.getElementById('s4').value = data.s4;
+            window.currentApkLink = data.apkLink;
+        }
+    });
 
-        // SYNC DATA FROM FIREBASE
-        const settingsRef = ref(db, 'siteSettings');
-        onValue(settingsRef, (snapshot) => {
-            const data = snapshot.val();
-            if(data) {
-                document.querySelectorAll('.dbTitle').forEach(el => el.innerText = data.title);
-                document.getElementById('metaTitle').innerText = data.title + " - Play & Earn";
-                document.getElementById('dbLogo').src = data.logoUrl;
-                document.getElementById('dbHeroDesc').innerText = data.heroDesc;
-                document.getElementById('dbAboutTitle').innerText = "About " + data.title;
-                document.getElementById('dbAboutText').innerText = data.aboutText;
-                
-                document.querySelectorAll('.dbApkLink').forEach(el => {
-                    el.href = data.apkLink;
-                    el.setAttribute('download', data.title + ".apk");
-                });
+    window.updateData = async () => {
+        const file = document.getElementById('apkFile').files[0];
+        let apkUrl = window.currentApkLink;
 
-                document.getElementById('stat1').setAttribute('data-target', data.s1);
-                document.getElementById('stat2').setAttribute('data-target', data.s2);
-                document.getElementById('stat3').setAttribute('data-target', data.s3);
-                document.getElementById('stat4').setAttribute('data-target', data.s4);
-                
-                startCounters();
-            }
+        if(file) {
+            const storageRef = sRef(storage, 'apps/' + file.name);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+            
+            document.getElementById('uploadProgress').style.display = 'block';
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    document.getElementById('progressBar').style.width = progress + '%';
+                }, 
+                (error) => { alert("Upload failed!"); }, 
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        saveToDB(downloadURL);
+                    });
+                }
+            );
+        } else {
+            saveToDB(apkUrl);
+        }
+    };
+
+    function saveToDB(apkUrl) {
+        set(ref(db, 'siteSettings'), {
+            title: document.getElementById('siteTitle').value,
+            heroDesc: document.getElementById('heroDesc').value,
+            aboutText: document.getElementById('aboutText').value,
+            logoUrl: document.getElementById('logoUrl').value,
+            apkLink: apkUrl,
+            s1: document.getElementById('s1').value,
+            s2: document.getElementById('s2').value,
+            s3: document.getElementById('s3').value,
+            s4: document.getElementById('s4').value
+        }).then(() => {
+            Swal.fire('Success!', 'Website has been updated!', 'success');
+            document.getElementById('uploadProgress').style.display = 'none';
         });
-
-        // COUNTER LOGIC
-        const speed = 200; 
-        const startCounters = () => {
-            document.querySelectorAll('.counter').forEach(counter => {
-                const updateCount = () => {
-                    const target = +counter.getAttribute('data-target');
-                    const count = +counter.innerText;
-                    const inc = target / speed;
-                    if (count < target) {
-                        counter.innerText = Math.ceil(count + inc);
-                        setTimeout(updateCount, 15);
-                    } else { counter.innerText = target; }
-                };
-                updateCount();
-            });
-        };
-
-        // SWEETALERT
-        document.querySelectorAll('.dl-trigger').forEach(btn => {
-            btn.addEventListener('click', () => {
-                Swal.fire({ title: 'Download Started!', text: 'Your APK is downloading...', icon: 'success', timer: 3000, showConfirmButton: false, toast: true, position: 'top-end' });
-            });
-        });
-    </script>
+    }
+</script>
 </body>
 </html>
