@@ -3,61 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="metaTitle">Play & Earn</title>
+    <title id="metaTitle">Loading...</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Sari styling wahi rahegi jo aapne pehle dekhi thi */
-        :root { --blue: #0052D4; --dark: #020024; }
-        body { font-family: sans-serif; margin: 0; text-align: center; color: #333; }
-        .hero { background: linear-gradient(135deg, var(--dark), var(--blue)); color: #fff; padding: 50px 20px; }
-        .app-logo { width: 100px; height: 100px; border-radius: 20px; border: 3px solid gold; margin-bottom: 15px; }
-        .dl-btn { display: inline-block; padding: 15px 30px; background: gold; color: #000; text-decoration: none; border-radius: 30px; font-weight: bold; margin-top: 20px; }
-        .stats-sec { display: flex; justify-content: space-around; padding: 40px 10px; background: #f9f9f9; }
-        .stat-val { font-size: 20px; font-weight: bold; display: block; }
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Plus+Jakarta+Sans:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Theme CSS Containers -->
+    <style id="themeStyles">
+        /* Default Loading State */
+        body { background: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
-    <section class="hero">
-        <img id="dbLogo" class="app-logo" src="" alt="Logo">
-        <h1 class="dbTitle">Loading...</h1>
-        <p id="dbHeroDesc">Fetching details...</p>
-        <a href="#" id="dbApkLink" class="dl-btn">DOWNLOAD APK</a>
-    </section>
-
-    <section class="stats-sec">
-        <div><span class="stat-val" id="s1">0</span>Matches</div>
-        <div><span class="stat-val" id="s2">0</span>Players</div>
-        <div><span class="stat-val" id="s3">0</span>Won</div>
-    </section>
+    <div id="themeContent">
+        <!-- Content will be injected here based on theme -->
+        <h2 style="color:#888">Syncing with Server...</h2>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyC4wpKbkeCzrN4IhwmSry4cr-j_f_V7CI0",
-            authDomain: "killing-stars.firebaseapp.com",
-            databaseURL: "https://killing-stars-default-rtdb.firebaseio.com",
-            projectId: "killing-stars",
-            appId: "1:467645322062:web:692e648254686cde03041f"
+            apiKey: "AIzaSyByev8IFSTDraEOnpiPnzuSdqJ-p58tksI",
+            authDomain: "h4xsmm06.firebaseapp.com",
+            databaseURL: "https://h4xsmm06-default-rtdb.firebaseio.com",
+            projectId: "h4xsmm06",
+            appId: "1:501931059240:web:5c016b0c37c7936c9dad1d"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        onValue(ref(db, 'siteSettings'), (snap) => {
-            const data = snap.val();
-            if(data) {
-                document.querySelectorAll('.dbTitle').forEach(e => e.innerText = data.title);
-                document.getElementById('dbLogo').src = data.logoUrl;
-                document.getElementById('dbHeroDesc').innerText = data.heroDesc;
-                document.getElementById('dbApkLink').href = data.apkLink;
-                document.getElementById('s1').innerText = data.s1;
-                document.getElementById('s2').innerText = data.s2;
-                document.getElementById('s3').innerText = data.s3;
-            }
+        onValue(ref(db, 'multiThemeSettings'), (snapshot) => {
+            const data = snapshot.val();
+            if(!data) return;
+
+            renderTheme(data);
         });
+
+        function renderTheme(data) {
+            const theme = data.activeTheme;
+            const styleTag = document.getElementById('themeStyles');
+            const container = document.getElementById('themeContent');
+            document.getElementById('metaTitle').innerText = data.title;
+
+            if (theme === 'luxury') {
+                // THEME 1: LUXURY ROYALE
+                styleTag.innerHTML = `
+                    body { background: #fff; color: #1a1a1a; font-family: 'Plus Jakarta Sans', sans-serif; margin:0; }
+                    .nav { padding: 20px 10%; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; }
+                    .hero { text-align: center; padding: 80px 20px; }
+                    .logo { width: 120px; height: 120px; border-radius: 20%; border: 2px solid #d4af37; padding: 5px; margin-bottom: 20px; }
+                    h1 { font-family: 'Marcellus', serif; font-size: 3rem; letter-spacing: 4px; color: #000; }
+                    .btn { background: linear-gradient(135deg, #d4af37, #b8860b); color: white; padding: 18px 40px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 30px; box-shadow: 0 10px 20px rgba(212,175,55,0.3); }
+                `;
+                container.innerHTML = `
+                    <div class="nav"><b>${data.title}</b> <span>GOLD MEMBER</span></div>
+                    <div class="hero">
+                        <img src="${data.logoUrl}" class="logo">
+                        <h1>${data.title}</h1>
+                        <p>${data.heroDesc}</p>
+                        <a href="${data.apkLink}" class="btn"><i class="fab fa-android"></i> GET PREMIUM ACCESS</a>
+                    </div>
+                `;
+            } 
+            else if (theme === 'blue') {
+                // THEME 2: BLUE BLAZE (Professional)
+                styleTag.innerHTML = `
+                    body { background: #f4f7ff; margin:0; font-family: 'Plus Jakarta Sans', sans-serif; }
+                    .header { background: linear-gradient(135deg, #020024 0%, #0052D4 100%); color: white; padding: 60px 20px; text-align: center; border-radius: 0 0 50px 50px; }
+                    .logo-box { width: 100px; height: 100px; background: white; margin: 0 auto 20px; border-radius: 15px; padding: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+                    .logo-box img { width: 100%; border-radius: 10px; }
+                    .btn-blue { background: #f1c40f; color: #000; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: 800; display: inline-block; margin-top: 20px; }
+                `;
+                container.innerHTML = `
+                    <div class="header">
+                        <div class="logo-box"><img src="${data.logoUrl}"></div>
+                        <h1>${data.title}</h1>
+                        <p>${data.heroDesc}</p>
+                        <a href="${data.apkLink}" class="btn-blue">DOWNLOAD NOW</a>
+                    </div>
+                    <div style="padding: 40px; text-align: center;">
+                        <h3>Active Players: ${data.s2}+</h3>
+                    </div>
+                `;
+            }
+            else {
+                // THEME 3: NEO-CYBER (New Theme)
+                styleTag.innerHTML = `
+                    body { background: #050505; color: #fff; margin:0; font-family: 'Plus Jakarta Sans', sans-serif; }
+                    .cyber-hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+                    .glow-text { font-size: 4rem; font-weight: 800; text-transform: uppercase; color: #00f2ff; text-shadow: 0 0 20px #00f2ff; margin: 0; }
+                    .logo-cyber { width: 150px; filter: drop-shadow(0 0 15px #00f2ff); margin-bottom: 20px; }
+                    .cyber-btn { border: 2px solid #00f2ff; color: #00f2ff; padding: 15px 40px; text-decoration: none; font-weight: bold; position: relative; transition: 0.3s; overflow: hidden; }
+                    .cyber-btn:hover { background: #00f2ff; color: #000; box-shadow: 0 0 50px #00f2ff; }
+                `;
+                container.innerHTML = `
+                    <div class="cyber-hero">
+                        <img src="${data.logoUrl}" class="logo-cyber">
+                        <h1 class="glow-text">${data.title}</h1>
+                        <p style="color: #00f2ff; opacity: 0.7; letter-spacing: 5px;">SYSTEM: ONLINE</p>
+                        <p style="max-width: 400px; text-align: center; margin: 20px;">${data.heroDesc}</p>
+                        <a href="${data.apkLink}" class="cyber-btn">INITIALIZE DOWNLOAD</a>
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html>
