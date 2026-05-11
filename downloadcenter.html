@@ -3,139 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="metaTitle">IQ E-SPORTS | Download App</title>
+    <title>IQ E-SPORTS | Download Official App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --accent: #f1c40f; --bg: #ffffff; --text: #1a1a1a; --blue: #0052D4; }
+        :root { 
+            --accent: #f1c40f; 
+            --blue: #0052D4; 
+            --dark: #020024;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+        
+        body { background-color: #ffffff; color: #1a1a1a; overflow-x: hidden; }
 
-        /* Premium Header */
-        .hero { 
-            background: linear-gradient(135deg, #020024 0%, #0052D4 100%); 
-            padding: 40px 20px 80px; 
-            color: white; 
+        /* Luxury Header */
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--blue) 100%);
+            padding: 50px 20px 100px;
             text-align: center;
-            clip-path: ellipse(150% 100% at 50% 0%);
+            color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
         }
-        .nav-brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 40px; }
-        .nav-brand img { width: 45px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .nav-brand span { font-weight: 800; letter-spacing: 2px; font-size: 1.2rem; }
 
-        /* Logo Animation */
-        .main-card {
-            background: white; width: 140px; height: 140px; 
-            margin: -70px auto 20px; border-radius: 30px;
+        .brand-nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .brand-nav img { width: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); }
+        .brand-nav span { font-weight: 800; letter-spacing: 2px; font-size: 1.1rem; }
+
+        /* App Icon Card */
+        .icon-box {
+            width: 140px; height: 140px;
+            background: white; margin: -70px auto 20px;
+            border-radius: 35px;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             border: 4px solid var(--accent);
-            position: relative; overflow: hidden;
+            position: relative; z-index: 10;
         }
-        .main-card img { width: 100%; height: 100%; object-fit: cover; }
+        .icon-box img { width: 100%; height: 100%; border-radius: 30px; object-fit: cover; }
 
-        h1 { font-size: 2rem; font-weight: 800; color: #111; margin-top: 10px; }
-        .tagline { color: #666; font-size: 0.9rem; margin-bottom: 30px; }
+        .content { text-align: center; padding: 20px; }
+        h1 { font-size: 2.2rem; font-weight: 800; color: #000; margin-bottom: 10px; }
+        .desc { color: #666; font-size: 0.95rem; max-width: 300px; margin: 0 auto 35px; }
 
-        /* Modern Download Button */
-        .dl-container { padding: 0 20px; text-align: center; margin-top: 20px; }
-        .btn-dl {
+        /* Premium Download Button */
+        .download-btn {
             background: linear-gradient(to right, #0052D4, #4364F7);
-            color: white; text-decoration: none; display: inline-flex;
-            align-items: center; gap: 15px; padding: 18px 40px;
+            color: white; text-decoration: none;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 15px; padding: 20px 45px;
             border-radius: 50px; font-weight: 700;
-            box-shadow: 0 10px 25px rgba(67, 100, 247, 0.4);
-            transition: 0.3s; width: 100%; max-width: 320px;
+            box-shadow: 0 12px 30px rgba(67, 100, 247, 0.4);
+            transition: 0.3s; width: 100%; max-width: 340px;
         }
-        .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(67, 100, 247, 0.5); }
-        .btn-dl i { font-size: 1.5rem; }
+        .download-btn:hover { transform: translateY(-4px); box-shadow: 0 18px 35px rgba(67, 100, 247, 0.5); }
+        .download-btn i { font-size: 1.8rem; }
 
-        /* Stats Grid */
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 40px 20px; max-width: 500px; margin: auto; }
-        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 20px; text-align: center; }
-        .stat-box h3 { font-size: 1.5rem; color: var(--blue); }
-        .stat-box p { font-size: 0.7rem; font-weight: 700; color: #888; text-transform: uppercase; margin-top: 5px; }
+        /* Stats Section */
+        .stats {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; padding: 40px 20px;
+            max-width: 500px; margin: auto;
+        }
+        .stat-item {
+            background: #fdfdfd; border: 1px solid #f0f0f0;
+            padding: 25px 15px; border-radius: 24px; text-align: center;
+        }
+        .stat-item h3 { font-size: 1.6rem; color: var(--blue); font-weight: 800; }
+        .stat-item p { font-size: 0.7rem; font-weight: 700; color: #999; text-transform: uppercase; margin-top: 5px; }
 
-        footer { padding: 30px; text-align: center; font-size: 0.8rem; color: #aaa; border-top: 1px solid #eee; }
+        footer { padding: 40px 20px; text-align: center; color: #bbb; font-size: 0.8rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <section class="hero">
-        <div class="nav-brand">
-            <img id="dbLogoNav" src="">
-            <span class="dbTitle">IQ E-SPORTS</span>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="brand-nav">
+            <!-- CHANGE HERE: Logo for Navbar -->
+            <img src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="Logo">
+            <span>IQ ROYALE</span>
         </div>
-        <p style="opacity: 0.8;">The Official Tournament Platform</p>
+        <p style="opacity: 0.8; font-weight: 300;">Elite Tournament Experience</p>
     </section>
 
-    <div class="main-card">
-        <img id="dbLogoMain" src="">
+    <!-- App Icon -->
+    <div class="icon-box">
+        <!-- CHANGE HERE: Main App Logo -->
+        <img src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="App Icon">
     </div>
 
-    <div class="dl-container">
-        <h1 class="dbTitle">IQ E-SPORTS</h1>
-        <p class="tagline" id="dbHeroDesc">Join the elite arena of gamers.</p>
+    <!-- Main Content -->
+    <div class="content">
+        <!-- CHANGE HERE: App Name -->
+        <h1>IQ E-SPORTS</h1>
+        <p class="desc">Host, Play and Earn Rewards in the most premium Esports arena.</p>
         
-        <a href="#" class="btn-dl dbApkLink dl-trigger">
+        <!-- CHANGE HERE: Your Direct APK Link -->
+        <a href="YOUR_APK_LINK_HERE" class="download-btn" id="dlTrigger">
             <i class="fab fa-android"></i>
             <div style="text-align: left;">
-                <span style="display: block; font-size: 0.7rem; opacity: 0.8;">Available for Android</span>
-                <span style="font-size: 1.1rem;">DOWNLOAD APK</span>
+                <span style="display: block; font-size: 0.7rem; opacity: 0.8; font-weight: 400;">Official Version 2.0</span>
+                <span style="font-size: 1.2rem;">DOWNLOAD APK</span>
             </div>
         </a>
     </div>
 
+    <!-- Stats Section (CHANGE NUMBERS HERE) -->
     <div class="stats">
-        <div class="stat-box"><h3 id="s1">0</h3><p>Tournaments</p></div>
-        <div class="stat-box"><h3 id="s2">0</h3><p>Active Players</p></div>
-        <div class="stat-box"><h3 id="s3">0</h3><p>Winning Amount</p></div>
-        <div class="stat-box"><h3 id="s4">0</h3><p>Daily Rewards</p></div>
+        <div class="stat-item"><h3>100+</h3><p>Tournaments</p></div>
+        <div class="stat-item"><h3>50K+</h3><p>Active Users</p></div>
+        <div class="stat-item"><h3>₹20L+</h3><p>Total Winnings</p></div>
+        <div class="stat-item"><h3>24/7</h3><p>Support</p></div>
     </div>
 
-    <footer>&copy; 2026 IQ E-SPORTS ORGANIZATION</footer>
+    <footer>
+        <p>&copy; 2026 IQ E-SPORTS ORGANIZATION</p>
+        <p style="margin-top: 10px; font-size: 0.6rem;">SECURE & ENCRYPTED INSTALLER</p>
+    </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyByev8IFSTDraEOnpiPnzuSdqJ-p58tksI",
-            authDomain: "h4xsmm06.firebaseapp.com",
-            databaseURL: "https://h4xsmm06-default-rtdb.firebaseio.com",
-            projectId: "h4xsmm06",
-            storageBucket: "h4xsmm06.appspot.com",
-            messagingSenderId: "501931059240",
-            appId: "1:501931059240:web:5c016b0c37c7936c9dad1d",
-            measurementId: "G-QY9R8BDK52"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        onValue(ref(db, 'siteSettings'), (snapshot) => {
-            const data = snapshot.val();
-            if(data) {
-                document.querySelectorAll('.dbTitle').forEach(el => el.innerText = data.title);
-                document.getElementById('dbLogoNav').src = data.logoUrl;
-                document.getElementById('dbLogoMain').src = data.logoUrl;
-                document.getElementById('dbHeroDesc').innerText = data.heroDesc;
-                document.querySelectorAll('.dbApkLink').forEach(el => el.href = data.apkLink);
-                document.getElementById('s1').innerText = data.s1;
-                document.getElementById('s2').innerText = data.s2;
-                document.getElementById('s3').innerText = "₹" + data.s3;
-                document.getElementById('s4').innerText = data.s4;
-            }
-        });
-
-        document.querySelector('.dl-trigger').addEventListener('click', () => {
+    <script>
+        // Simple SweetAlert for Download
+        document.getElementById('dlTrigger').addEventListener('click', function(e) {
             Swal.fire({
-                title: 'Preparing Download',
-                text: 'Your secure link is ready.',
+                title: 'Downloading...',
+                text: 'Your secure installation is starting.',
                 icon: 'success',
-                confirmButtonColor: '#0052D4',
-                timer: 2500
+                showConfirmButton: false,
+                timer: 3000,
+                background: '#fff',
+                color: '#000',
+                iconColor: '#0052D4'
             });
         });
     </script>
