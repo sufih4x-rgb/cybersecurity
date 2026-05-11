@@ -3,23 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="metaTitle">Loading...</title>
+    <title id="metaTitle">IQ E-SPORTS | Download App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Plus+Jakarta+Sans:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Theme CSS Containers -->
-    <style id="themeStyles">
-        /* Default Loading State */
-        body { background: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+    <style>
+        :root { --accent: #f1c40f; --bg: #ffffff; --text: #1a1a1a; --blue: #0052D4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+
+        /* Premium Header */
+        .hero { 
+            background: linear-gradient(135deg, #020024 0%, #0052D4 100%); 
+            padding: 40px 20px 80px; 
+            color: white; 
+            text-align: center;
+            clip-path: ellipse(150% 100% at 50% 0%);
+        }
+        .nav-brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 40px; }
+        .nav-brand img { width: 45px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .nav-brand span { font-weight: 800; letter-spacing: 2px; font-size: 1.2rem; }
+
+        /* Logo Animation */
+        .main-card {
+            background: white; width: 140px; height: 140px; 
+            margin: -70px auto 20px; border-radius: 30px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 4px solid var(--accent);
+            position: relative; overflow: hidden;
+        }
+        .main-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        h1 { font-size: 2rem; font-weight: 800; color: #111; margin-top: 10px; }
+        .tagline { color: #666; font-size: 0.9rem; margin-bottom: 30px; }
+
+        /* Modern Download Button */
+        .dl-container { padding: 0 20px; text-align: center; margin-top: 20px; }
+        .btn-dl {
+            background: linear-gradient(to right, #0052D4, #4364F7);
+            color: white; text-decoration: none; display: inline-flex;
+            align-items: center; gap: 15px; padding: 18px 40px;
+            border-radius: 50px; font-weight: 700;
+            box-shadow: 0 10px 25px rgba(67, 100, 247, 0.4);
+            transition: 0.3s; width: 100%; max-width: 320px;
+        }
+        .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(67, 100, 247, 0.5); }
+        .btn-dl i { font-size: 1.5rem; }
+
+        /* Stats Grid */
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 40px 20px; max-width: 500px; margin: auto; }
+        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 20px; text-align: center; }
+        .stat-box h3 { font-size: 1.5rem; color: var(--blue); }
+        .stat-box p { font-size: 0.7rem; font-weight: 700; color: #888; text-transform: uppercase; margin-top: 5px; }
+
+        footer { padding: 30px; text-align: center; font-size: 0.8rem; color: #aaa; border-top: 1px solid #eee; }
     </style>
 </head>
-<body id="mainBody">
+<body>
 
-    <div id="themeContent">
-        <!-- Content will be injected here based on theme -->
-        <h2 style="color:#888">Syncing with Server...</h2>
+    <section class="hero">
+        <div class="nav-brand">
+            <img id="dbLogoNav" src="">
+            <span class="dbTitle">IQ E-SPORTS</span>
+        </div>
+        <p style="opacity: 0.8;">The Official Tournament Platform</p>
+    </section>
+
+    <div class="main-card">
+        <img id="dbLogoMain" src="">
     </div>
+
+    <div class="dl-container">
+        <h1 class="dbTitle">IQ E-SPORTS</h1>
+        <p class="tagline" id="dbHeroDesc">Join the elite arena of gamers.</p>
+        
+        <a href="#" class="btn-dl dbApkLink dl-trigger">
+            <i class="fab fa-android"></i>
+            <div style="text-align: left;">
+                <span style="display: block; font-size: 0.7rem; opacity: 0.8;">Available for Android</span>
+                <span style="font-size: 1.1rem;">DOWNLOAD APK</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box"><h3 id="s1">0</h3><p>Tournaments</p></div>
+        <div class="stat-box"><h3 id="s2">0</h3><p>Active Players</p></div>
+        <div class="stat-box"><h3 id="s3">0</h3><p>Winning Amount</p></div>
+        <div class="stat-box"><h3 id="s4">0</h3><p>Daily Rewards</p></div>
+    </div>
+
+    <footer>&copy; 2026 IQ E-SPORTS ORGANIZATION</footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -30,87 +105,39 @@
             authDomain: "h4xsmm06.firebaseapp.com",
             databaseURL: "https://h4xsmm06-default-rtdb.firebaseio.com",
             projectId: "h4xsmm06",
-            appId: "1:501931059240:web:5c016b0c37c7936c9dad1d"
+            storageBucket: "h4xsmm06.appspot.com",
+            messagingSenderId: "501931059240",
+            appId: "1:501931059240:web:5c016b0c37c7936c9dad1d",
+            measurementId: "G-QY9R8BDK52"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        onValue(ref(db, 'multiThemeSettings'), (snapshot) => {
+        onValue(ref(db, 'siteSettings'), (snapshot) => {
             const data = snapshot.val();
-            if(!data) return;
-
-            renderTheme(data);
+            if(data) {
+                document.querySelectorAll('.dbTitle').forEach(el => el.innerText = data.title);
+                document.getElementById('dbLogoNav').src = data.logoUrl;
+                document.getElementById('dbLogoMain').src = data.logoUrl;
+                document.getElementById('dbHeroDesc').innerText = data.heroDesc;
+                document.querySelectorAll('.dbApkLink').forEach(el => el.href = data.apkLink);
+                document.getElementById('s1').innerText = data.s1;
+                document.getElementById('s2').innerText = data.s2;
+                document.getElementById('s3').innerText = "₹" + data.s3;
+                document.getElementById('s4').innerText = data.s4;
+            }
         });
 
-        function renderTheme(data) {
-            const theme = data.activeTheme;
-            const styleTag = document.getElementById('themeStyles');
-            const container = document.getElementById('themeContent');
-            document.getElementById('metaTitle').innerText = data.title;
-
-            if (theme === 'luxury') {
-                // THEME 1: LUXURY ROYALE
-                styleTag.innerHTML = `
-                    body { background: #fff; color: #1a1a1a; font-family: 'Plus Jakarta Sans', sans-serif; margin:0; }
-                    .nav { padding: 20px 10%; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; }
-                    .hero { text-align: center; padding: 80px 20px; }
-                    .logo { width: 120px; height: 120px; border-radius: 20%; border: 2px solid #d4af37; padding: 5px; margin-bottom: 20px; }
-                    h1 { font-family: 'Marcellus', serif; font-size: 3rem; letter-spacing: 4px; color: #000; }
-                    .btn { background: linear-gradient(135deg, #d4af37, #b8860b); color: white; padding: 18px 40px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 30px; box-shadow: 0 10px 20px rgba(212,175,55,0.3); }
-                `;
-                container.innerHTML = `
-                    <div class="nav"><b>${data.title}</b> <span>GOLD MEMBER</span></div>
-                    <div class="hero">
-                        <img src="${data.logoUrl}" class="logo">
-                        <h1>${data.title}</h1>
-                        <p>${data.heroDesc}</p>
-                        <a href="${data.apkLink}" class="btn"><i class="fab fa-android"></i> GET PREMIUM ACCESS</a>
-                    </div>
-                `;
-            } 
-            else if (theme === 'blue') {
-                // THEME 2: BLUE BLAZE (Professional)
-                styleTag.innerHTML = `
-                    body { background: #f4f7ff; margin:0; font-family: 'Plus Jakarta Sans', sans-serif; }
-                    .header { background: linear-gradient(135deg, #020024 0%, #0052D4 100%); color: white; padding: 60px 20px; text-align: center; border-radius: 0 0 50px 50px; }
-                    .logo-box { width: 100px; height: 100px; background: white; margin: 0 auto 20px; border-radius: 15px; padding: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-                    .logo-box img { width: 100%; border-radius: 10px; }
-                    .btn-blue { background: #f1c40f; color: #000; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: 800; display: inline-block; margin-top: 20px; }
-                `;
-                container.innerHTML = `
-                    <div class="header">
-                        <div class="logo-box"><img src="${data.logoUrl}"></div>
-                        <h1>${data.title}</h1>
-                        <p>${data.heroDesc}</p>
-                        <a href="${data.apkLink}" class="btn-blue">DOWNLOAD NOW</a>
-                    </div>
-                    <div style="padding: 40px; text-align: center;">
-                        <h3>Active Players: ${data.s2}+</h3>
-                    </div>
-                `;
-            }
-            else {
-                // THEME 3: NEO-CYBER (New Theme)
-                styleTag.innerHTML = `
-                    body { background: #050505; color: #fff; margin:0; font-family: 'Plus Jakarta Sans', sans-serif; }
-                    .cyber-hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
-                    .glow-text { font-size: 4rem; font-weight: 800; text-transform: uppercase; color: #00f2ff; text-shadow: 0 0 20px #00f2ff; margin: 0; }
-                    .logo-cyber { width: 150px; filter: drop-shadow(0 0 15px #00f2ff); margin-bottom: 20px; }
-                    .cyber-btn { border: 2px solid #00f2ff; color: #00f2ff; padding: 15px 40px; text-decoration: none; font-weight: bold; position: relative; transition: 0.3s; overflow: hidden; }
-                    .cyber-btn:hover { background: #00f2ff; color: #000; box-shadow: 0 0 50px #00f2ff; }
-                `;
-                container.innerHTML = `
-                    <div class="cyber-hero">
-                        <img src="${data.logoUrl}" class="logo-cyber">
-                        <h1 class="glow-text">${data.title}</h1>
-                        <p style="color: #00f2ff; opacity: 0.7; letter-spacing: 5px;">SYSTEM: ONLINE</p>
-                        <p style="max-width: 400px; text-align: center; margin: 20px;">${data.heroDesc}</p>
-                        <a href="${data.apkLink}" class="cyber-btn">INITIALIZE DOWNLOAD</a>
-                    </div>
-                `;
-            }
-        }
+        document.querySelector('.dl-trigger').addEventListener('click', () => {
+            Swal.fire({
+                title: 'Preparing Download',
+                text: 'Your secure link is ready.',
+                icon: 'success',
+                confirmButtonColor: '#0052D4',
+                timer: 2500
+            });
+        });
     </script>
 </body>
 </html>
