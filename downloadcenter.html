@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IQ E-SPORTS | Download Official App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
         :root { 
             --accent: #f1c40f; 
@@ -19,7 +18,6 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: #ffffff; color: #1a1a1a; overflow-x: hidden; }
-
         .header {
             background: linear-gradient(135deg, var(--dark) 0%, var(--blue) 100%);
             padding: 50px 20px 100px;
@@ -30,7 +28,6 @@
         .brand-nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
         .brand-nav img { width: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); }
         .brand-nav span { font-weight: 800; letter-spacing: 2px; font-size: 1.1rem; }
-
         .icon-box {
             width: 140px; height: 140px;
             background: white; margin: -70px auto 20px;
@@ -41,11 +38,9 @@
             position: relative; z-index: 10;
         }
         .icon-box img { width: 100%; height: 100%; border-radius: 30px; object-fit: cover; }
-
         .content { text-align: center; padding: 20px; }
         h1 { font-size: 2.2rem; font-weight: 800; color: #000; margin-bottom: 10px; }
         .desc { color: #666; font-size: 0.95rem; max-width: 300px; margin: 0 auto 35px; }
-
         .download-btn {
             background: linear-gradient(to right, #0052D4, #4364F7);
             color: white; text-decoration: none;
@@ -58,7 +53,6 @@
         }
         .download-btn:hover { transform: translateY(-4px); box-shadow: 0 18px 35px rgba(67, 100, 247, 0.5); }
         .download-btn i { font-size: 1.8rem; }
-
         .stats {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 15px; padding: 40px 20px;
@@ -70,12 +64,10 @@
         }
         .stat-item h3 { font-size: 1.6rem; color: var(--blue); font-weight: 800; }
         .stat-item p { font-size: 0.7rem; font-weight: 700; color: #999; text-transform: uppercase; margin-top: 5px; }
-
         footer { padding: 40px 20px; text-align: center; color: #bbb; font-size: 0.8rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-
     <section class="header">
         <div class="brand-nav">
             <img src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="Logo">
@@ -83,11 +75,9 @@
         </div>
         <p style="opacity: 0.8; font-weight: 300;">Elite Tournament Experience</p>
     </section>
-
     <div class="icon-box">
         <img src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="App Icon">
     </div>
-
     <div class="content">
         <h1>IQ E-SPORTS</h1>
         <p class="desc">Host, Play and Earn Rewards in the most premium Esports arena.</p>
@@ -100,21 +90,18 @@
             </div>
         </a>
     </div>
-
     <div class="stats">
         <div class="stat-item"><h3>100+</h3><p>Tournaments</p></div>
         <div class="stat-item"><h3>50K+</h3><p>Active Users</p></div>
         <div class="stat-item"><h3>₹20L+</h3><p>Total Winnings</p></div>
         <div class="stat-item"><h3>24/7</h3><p>Support</p></div>
     </div>
-
     <footer>
         <p>&copy; 2026 IQ E-SPORTS ORGANIZATION</p>
         <p style="margin-top: 10px; font-size: 0.6rem;">SECURE & ENCRYPTED INSTALLER</p>
     </footer>
-
     <script>
-        // Firebase Config
+        // Firebase Config (Sufi Bhai ka original config securely bounded)
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             authDomain: "in-app-update-21c61.firebaseapp.com",
@@ -127,17 +114,15 @@
         
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
         const dlButton = document.getElementById('dlTrigger');
         const versionSpan = document.getElementById('appVersion');
         let downloadUrl = "";
 
-        // Database se check karna
+        // Database se data check karna aur live real-time badalna
         database.ref('appUpdate').on('value', (snapshot) => {
             const data = snapshot.val();
             if(data) {
                 downloadUrl = data.url;
-                dlButton.href = data.url;
                 versionSpan.innerText = "Official Version " + data.version;
             } else {
                 versionSpan.innerText = "Official Version 2.0";
@@ -145,26 +130,30 @@
         });
 
         dlButton.addEventListener('click', function(e) {
-            if(!downloadUrl || downloadUrl === "#") {
-                e.preventDefault();
+            e.preventDefault(); // Default instant raw redirect breaks animation, manually triggered safely instead.
+            
+            if(!downloadUrl || downloadUrl === "" || downloadUrl === "#") {
                 Swal.fire({
                     title: 'Error!',
-                    text: 'Download link available nahi hai.',
+                    text: 'Download link available nahi hai database mein.',
                     icon: 'error',
                     confirmButtonColor: '#0052D4'
                 });
                 return;
             }
-
+            
             Swal.fire({
                 title: 'Downloading...',
                 text: 'Your secure installation is starting.',
                 icon: 'success',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 2500,
                 background: '#fff',
                 color: '#000',
                 iconColor: '#0052D4'
+            }).then(() => {
+                // Direct route allocation starts processing downloading pipeline stream safely
+                window.location.href = downloadUrl;
             });
         });
     </script>
