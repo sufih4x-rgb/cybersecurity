@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root { 
             --accent: #f1c40f; 
@@ -14,10 +18,8 @@
             --dark: #020024;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        
         body { background-color: #ffffff; color: #1a1a1a; overflow-x: hidden; }
 
-        /* Luxury Header */
         .header {
             background: linear-gradient(135deg, var(--dark) 0%, var(--blue) 100%);
             padding: 50px 20px 100px;
@@ -25,12 +27,10 @@
             color: white;
             clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
         }
-
         .brand-nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
         .brand-nav img { width: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); }
         .brand-nav span { font-weight: 800; letter-spacing: 2px; font-size: 1.1rem; }
 
-        /* App Icon Card */
         .icon-box {
             width: 140px; height: 140px;
             background: white; margin: -70px auto 20px;
@@ -46,7 +46,6 @@
         h1 { font-size: 2.2rem; font-weight: 800; color: #000; margin-bottom: 10px; }
         .desc { color: #666; font-size: 0.95rem; max-width: 300px; margin: 0 auto 35px; }
 
-        /* Premium Download Button */
         .download-btn {
             background: linear-gradient(to right, #0052D4, #4364F7);
             color: white; text-decoration: none;
@@ -55,11 +54,11 @@
             border-radius: 50px; font-weight: 700;
             box-shadow: 0 12px 30px rgba(67, 100, 247, 0.4);
             transition: 0.3s; width: 100%; max-width: 340px;
+            cursor: pointer;
         }
         .download-btn:hover { transform: translateY(-4px); box-shadow: 0 18px 35px rgba(67, 100, 247, 0.5); }
         .download-btn i { font-size: 1.8rem; }
 
-        /* Stats Section */
         .stats {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 15px; padding: 40px 20px;
@@ -77,39 +76,31 @@
 </head>
 <body>
 
-    <!-- Header Section -->
     <section class="header">
         <div class="brand-nav">
-            <!-- CHANGE HERE: Logo for Navbar -->
             <img src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="Logo">
             <span>IQ ROYALE</span>
         </div>
         <p style="opacity: 0.8; font-weight: 300;">Elite Tournament Experience</p>
     </section>
 
-    <!-- App Icon -->
     <div class="icon-box">
-        <!-- CHANGE HERE: Main App Logo -->
         <img src="https://uploads.onecompiler.io/44eaxx4gy/44fw74svu/IMG_20260310_113159_680.jpg" alt="App Icon">
     </div>
 
-    <!-- Main Content -->
     <div class="content">
-        <!-- CHANGE HERE: App Name -->
         <h1>IQ E-SPORTS</h1>
         <p class="desc">Host, Play and Earn Rewards in the most premium Esports arena.</p>
         
-        <!-- CHANGE HERE: Your Direct APK Link -->
-        <a href="https://drive.google.com/uc?export=download&id=1qHwd_FLRBZGyYpa3X6RPLCiynuduojy-" class="download-btn" id="dlTrigger">
+        <a href="#" class="download-btn" id="dlTrigger">
             <i class="fab fa-android"></i>
             <div style="text-align: left;">
-                <span style="display: block; font-size: 0.7rem; opacity: 0.8; font-weight: 400;">Official Version 2.0</span>
+                <span id="appVersion" style="display: block; font-size: 0.7rem; opacity: 0.8; font-weight: 400;">Loading version...</span>
                 <span style="font-size: 1.2rem;">DOWNLOAD APK</span>
             </div>
         </a>
     </div>
 
-    <!-- Stats Section (CHANGE NUMBERS HERE) -->
     <div class="stats">
         <div class="stat-item"><h3>100+</h3><p>Tournaments</p></div>
         <div class="stat-item"><h3>50K+</h3><p>Active Users</p></div>
@@ -123,8 +114,48 @@
     </footer>
 
     <script>
-        // Simple SweetAlert for Download
-        document.getElementById('dlTrigger').addEventListener('click', function(e) {
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
+            authDomain: "in-app-update-21c61.firebaseapp.com",
+            databaseURL: "https://in-app-update-21c61-default-rtdb.firebaseio.com",
+            projectId: "in-app-update-21c61",
+            storageBucket: "in-app-update-21c61.firebasestorage.app",
+            messagingSenderId: "1013483026768",
+            appId: "1:1013483026768:web:c5f54060842f9672431455"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const dlButton = document.getElementById('dlTrigger');
+        const versionSpan = document.getElementById('appVersion');
+        let downloadUrl = "";
+
+        // Database se check karna
+        database.ref('appUpdate').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                downloadUrl = data.url;
+                dlButton.href = data.url;
+                versionSpan.innerText = "Official Version " + data.version;
+            } else {
+                versionSpan.innerText = "Official Version 2.0";
+            }
+        });
+
+        dlButton.addEventListener('click', function(e) {
+            if(!downloadUrl || downloadUrl === "#") {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Download link available nahi hai.',
+                    icon: 'error',
+                    confirmButtonColor: '#0052D4'
+                });
+                return;
+            }
+
             Swal.fire({
                 title: 'Downloading...',
                 text: 'Your secure installation is starting.',
