@@ -100,8 +100,9 @@
         <p>&copy; 2026 IQ E-SPORTS ORGANIZATION</p>
         <p style="margin-top: 10px; font-size: 0.6rem;">SECURE & ENCRYPTED INSTALLER</p>
     </footer>
+
     <script>
-        // Firebase Config (Sufi Bhai ka original config securely bounded)
+        // MASTER FIREBASE CONNECTION
         const firebaseConfig = {
             apiKey: "AIzaSyAfrFpzw2UddAxGrhAlIeP_c1OaoIG6wNk",
             authDomain: "in-app-update-21c61.firebaseapp.com",
@@ -118,7 +119,7 @@
         const versionSpan = document.getElementById('appVersion');
         let downloadUrl = "";
 
-        // Database se data check karna aur live real-time badalna
+        // Fetch updates from database instantly without window reload pipelines
         database.ref('appUpdate').on('value', (snapshot) => {
             const data = snapshot.val();
             if(data) {
@@ -127,15 +128,19 @@
             } else {
                 versionSpan.innerText = "Official Version 2.0";
             }
+        }, (error) => {
+            console.log("Database connectivity tracking offline.");
+            versionSpan.innerText = "Version Sync Offline";
         });
 
+        // Safe Downloader Deployment Thread Trigger
         dlButton.addEventListener('click', function(e) {
-            e.preventDefault(); // Default instant raw redirect breaks animation, manually triggered safely instead.
+            e.preventDefault(); 
             
             if(!downloadUrl || downloadUrl === "" || downloadUrl === "#") {
                 Swal.fire({
                     title: 'Error!',
-                    text: 'Download link available nahi hai database mein.',
+                    text: 'Admin ne abhi tak koi link upload nahi kiya hai database mein.',
                     icon: 'error',
                     confirmButtonColor: '#0052D4'
                 });
@@ -144,7 +149,7 @@
             
             Swal.fire({
                 title: 'Downloading...',
-                text: 'Your secure installation is starting.',
+                text: 'Your secure installation package is starting.',
                 icon: 'success',
                 showConfirmButton: false,
                 timer: 2500,
@@ -152,7 +157,7 @@
                 color: '#000',
                 iconColor: '#0052D4'
             }).then(() => {
-                // Direct route allocation starts processing downloading pipeline stream safely
+                // Secure raw allocation thread redirect direct to APK stream pointer
                 window.location.href = downloadUrl;
             });
         });
