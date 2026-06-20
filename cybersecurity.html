@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Processing...</title>
+</head>
+<body>
+    <p>Checking Permissions, please wait...</p>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2hVZ7AGAeuEwzbn4o6RIKjN8iuVl3NjE",
+            databaseURL: "https://testing-530be-default-rtdb.firebaseio.com",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Get user ID from URL query parameters (?id=XXXX)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (userId) {
+            get(ref(db, 'users/' + userId)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    if (userData.vip === true) {
+                        window.location.href = "admin.html"; // VIP ON
+                    } else {
+                        window.location.href = "logo.html";  // VIP OFF
+                    }
+                } else {
+                    alert("User not found!");
+                }
+            }).catch((error) => console.error(error));
+        } else {
+            document.body.innerHTML = "<h3>Invalid Link Access!</h3>";
+        }
+    </script>
+</body>
+</html>
