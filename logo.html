@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLOW LOGO MAKER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #FF3B00;
+            --text-dark: #000000;
+            --text-gray: #888888;
+            --border-light: #E0E0E0;
+            --bg-light: #F9F9F9;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            padding-bottom: 50px;
+        }
+
+        /* Topbar Header */
+        .topbar {
+            display: flex;
+            align-items: center;
+            padding: 25px 20px 10px;
+        }
+
+        .logo-box {
+            background-color: var(--primary-red);
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        .logo-text {
+            font-weight: 900;
+            letter-spacing: -1.2px;
+            font-size: 24px;
+            color: #000;
+        }
+
+        /* Navigation Steps */
+        .steps-nav {
+            padding: 20px 20px 5px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: var(--primary-red);
+            line-height: 1.4;
+            text-transform: uppercase;
+        }
+
+        /* Main Headline Section */
+        .hero-section {
+            padding: 5px 20px;
+        }
+
+        h1 {
+            font-size: 30px; 
+            line-height: 0.9;
+            font-weight: 900;
+            letter-spacing: -2.5px;
+            margin: 0;
+        }
+
+        .red-text {
+            color: var(--primary-red);
+        }
+
+        /* Sub-Description Section */
+        .description {
+            font-size: 12px;
+            line-height: 1.3;
+            color: var(--text-gray);
+            font-weight: 400;
+            margin: 25px 0;
+            padding: 0 20px;
+            max-width: 90%;
+            letter-spacing: -0.2px;
+        }
+
+        /* Step Indicator */
+        .step-label {
+            padding: 15px 20px 10px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        /* UPLOAD BOX */
+        .upload-container {
+            margin: 0 20px 30px;
+            border: 1px dashed var(--border-light);
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .upload-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 8px;
+            color: var(--text-gray);
+            max-width: 200px;
+            line-height: 1.4;
+        }
+
+        /* INPUT FIELDS */
+        .input-group {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-field {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid var(--border-light);
+            padding: 12px 0;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        .input-field::placeholder {
+            color: #CCCCCC;
+        }
+
+        /* BUTTONS */
+        .button-container {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .btn-generate {
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .btn-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background-color: transparent;
+            color: black;
+            border: 1px solid black;
+            padding: 15px;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        /* BEFORE/AFTER SECTION */
+        .results-section {
+            padding: 0 20px;
+            margin-bottom: 60px;
+        }
+
+        .result-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .label-after {
+            color: var(--primary-red);
+            margin-top: 30px;
+        }
+
+        .result-box {
+            background-color: #F6F6F6;
+            width: 100%;
+            height: 380px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-gray);
+            overflow: hidden;
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .result-text {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* FEATURES SECTION */
+        .features-section {
+            padding: 40px 20px;
+            border-top: 1px solid #EEEEEE;
+        }
+
+        .feature-item {
+            margin-bottom: 45px;
+        }
+
+        .feature-number {
+            color: var(--primary-red);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            color: #000;
+        }
+
+        .feature-desc {
+            font-size: 10px;
+            line-height: 1.5;
+            color: var(--text-gray);
+            font-weight: 400;
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 30px 20px;
+            border-top: 1px solid #EEEEEE;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer-text {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            color: #888;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .no-wrap {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="logo-box">F</div>
+        <div class="logo-text">LOGO CUSTOMIZES</div>
+    </header>
+
+    <nav class="steps-nav">
+        01 — UPLOAD · 02 — TYPE · 03 — GENERATE<br>
+    </nav>
+
+    <section class="hero-section">
+        <h1>
+            <span class="no-wrap">Swap any text on a</span><br>
+            <span class="no-wrap">profile picture. <span class="red-text">Same</span></span><br>
+            <span class="red-text">font.</span><br>
+            Same vibe.
+        </h1>
+    </section>
+
+    <p class="description">
+        Drop a PFP, tell us what the new caption should read, and our typography-aware AI rebuilds the image — preserving the original typeface, weight, and placement to the pixel.
+    </p>
+
+    <div class="step-label">STEP 01 — IMAGE</div>
+    <div class="upload-container" id="uploadBtn">
+        <div id="uploadDefaultUI">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            <div class="upload-text">Drop PFP here</div>
+            <div class="upload-hint">PNG, JPG, WEBP — up to 10 MB. Square images work best.</div>
+        </div>
+        <img id="uploadPreview" style="display: none; width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0;" />
+    </div>
+
+    <div class="step-label">STEP 02 — ORIGINAL TEXT <span style="color:var(--text-gray); font-weight:400; text-transform:lowercase;">(optional)</span></div>
+    <div class="input-group">
+        <input type="text" class="input-field" id="oldTextInput" placeholder="e.g. JOHN">
+    </div>
+
+    <div class="step-label">STEP 03 — NEW TEXT</div>
+    <div class="input-group">
+        <input type="text" class="input-field" id="newTextInput" placeholder="e.g. ALEX">
+    </div>
+
+    <div class="button-container">
+        <button class="btn-generate" id="generateBtn" disabled>
+            LOADING DATABASE... <span>⌛</span>
+        </button>
+        <button class="btn-reset" id="resetBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            RESET
+        </button>
+    </div>
+
+    <section class="results-section">
+        <div class="result-label">BEFORE</div>
+        <div class="result-box" id="beforeBox">
+            <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <div class="result-text">Awaiting Upload</div>
+        </div>
+
+        <div class="result-label label-after">AFTER</div>
+        <div class="result-box" id="afterBox">
+            <div id="afterDefaultUI">
+                <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 3l1.912 5.885h6.19l-5.007 3.638 1.912 5.885L12 14.77l-5.007 3.638 1.912-5.885-5.007-3.638h6.19z" />
+                </svg>
+                <div class="result-text" id="afterStatusText">Result will appear here</div>
+            </div>
+            <img id="afterPreview" style="display: none; width: 100%; height: 100%; object-fit: contain;" />
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="feature-item">
+            <div class="feature-number">01</div>
+            <div class="feature-title">Pixel-true typography</div>
+            <div class="feature-desc">
+                Our model studies the original glyphs — weight, kerning, color — and reconstructs the new word in the exact same hand.
+            </div>
+        </div>
+
+        <div class="feature-item">
+            <div class="feature-number">02</div>
+            <div class="feature-title">Background untouched</div>
+            <div class="feature-desc">
+                Faces, gradients, decorative elements and lighting are preserved. Only the text changes.
+            </div>
+        </div>
+
+        <div class="feature-item">
+            <div class="feature-number">03</div>
+            <div class="feature-title">Download in one click</div>
+            <div class="feature-desc">
+                Square PNG output, ready for any social profile. No watermarks, no fuss.
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-text">
+            © POWERED BY FLOW OWNER
+        </div>
+    </footer>                
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        // 1. FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMwxuK9mo7gu3jsVD8L2AiHmI3aBsUvtU",
+            authDomain: "flowturnament.firebaseapp.com",
+            databaseURL: "https://flowturnament-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "flowturnament",
+            storageBucket: "flowturnament.firebasestorage.app",
+            messagingSenderId: "452539677386",
+            appId: "1:452539677386:web:8c6ee975e5446bf1ef1233"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 2. DOM Elements
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadDefaultUI = document.getElementById('uploadDefaultUI');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const oldTextInput = document.getElementById('oldTextInput');
+        const newTextInput = document.getElementById('newTextInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const beforeBox = document.getElementById('beforeBox');
+        const afterBox = document.getElementById('afterBox');
+        const afterDefaultUI = document.getElementById('afterDefaultUI');
+        const afterPreview = document.getElementById('afterPreview');
+        const afterStatusText = document.getElementById('afterStatusText');
+
+        let fetchedApiKey = null;
+        let imageBase64Data = null;
+
+        // 3. FETCH API KEY FROM DATABASE
+        database.ref('API_KEY').on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                fetchedApiKey = snapshot.val();
+                console.log("API Key loaded successfully!");
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = "GENERATE <span>→</span>";
+            } else {
+                generateBtn.innerHTML = "KEY NOT FOUND IN DB";
+                alert("Firebase database me 'API_KEY' name ka node nahi mila.");
+            }
+        }, (error) => {
+            console.error("Firebase read error:", error);
+            generateBtn.innerHTML = "DATABASE ERROR";
+        });
+
+        // 4. IMAGE UPLOAD LOGIC
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/png, image/jpeg, image/webp';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imageBase64Data = e.target.result;
+                    uploadDefaultUI.style.display = 'none';
+                    uploadPreview.src = imageBase64Data;
+                    uploadPreview.style.display = 'block';
+                    beforeBox.innerHTML = `<img src="${imageBase64Data}" style="width: 100%; height: 100%; object-fit: contain;" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 5. GENERATE BUTTON (DIRECT API WEB ACCESS FOR PROD ENVS)
+        generateBtn.addEventListener('click', async () => {
+            const newText = newTextInput.value.trim();
+
+            if (!fetchedApiKey) {
+                alert("API Key abhi tak fetch nahi hui hai, kindly wait.");
+                return;
+            }
+            if (!newText) {
+                alert("Please enter the NEW TEXT.");
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = "GENERATING... <span>⌛</span>";
+            afterDefaultUI.style.display = 'block';
+            afterPreview.style.display = 'none';
+            afterStatusText.innerText = "Generating your customized logo...";
+
+            try {
+                // Direct production link to Google endpoints (Works directly on hosted HTTPS domains like GitHub Pages)
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${fetchedApiKey}`;
+
+                let promptString = `A professional square profile picture logo. The main text centrally featured must read exactly "${newText}". Clear typography, high resolution, modern design asset.`;
+                
+                const payload = {
+                    requests: [{
+                        prompt: {
+                            text: promptString
+                        }
+                    }]
+                };
+
+                const response = await fetch(targetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.generatedImages && data.generatedImages[0]) {
+                    const rawBase64 = data.generatedImages[0].image.imageBytes;
+                    afterDefaultUI.style.display = 'none';
+                    afterPreview.src = `data:image/jpeg;base64,${rawBase64}`;
+                    afterPreview.style.display = 'block';
+                } else {
+                    throw new Error(data.error?.message || "Failed to generate image.");
+                }
+
+            } catch (error) {
+                console.error("API Error:", error);
+                afterStatusText.innerText = "Error: Generation Failed.";
+                alert("Error: " + error.message + "\n\nTip: Google AI Studio dashboard par check karein ki aapka account linked project billing optimized (Pay-as-you-go) status par hai ya nahi, kyunki Imagen-3 functions free endpoints par direct active nahi hote.");
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = "GENERATE <span>→</span>";
+            }
+        });
+
+       // 6. RESET LOGIC
+        resetBtn.addEventListener('click', () => {
+            imageBase64Data = null;
+            fileInput.value = "";
+            oldTextInput.value = "";
+            newTextInput.value = "";
+            uploadDefaultUI.style.display = 'flex';
+            uploadPreview.style.display = 'none';
+            uploadPreview.src = "";
+            beforeBox.innerHTML = `<svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div class="result-text">Awaiting Upload</div>`;
+            afterDefaultUI.style.display = 'block';
+            afterPreview.style.display = 'none';
+            afterPreview.src = "";
+            afterStatusText.innerText = "Result will appear here";
+        });
+    </script>
+</body>
+</html>
+
