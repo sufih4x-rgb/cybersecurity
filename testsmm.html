@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H4X SMM - Create Free Account</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c20 0%, #15102a 100%);
+            --text-main: #ffffff;
+            --text-sub: #a0aec0;
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --input-bg: rgba(255, 255, 255, 0.03);
+            --input-text: #ffffff;
+            --glass-btn-bg: rgba(255, 255, 255, 0.05);
+            --glass-btn-border: rgba(255, 255, 255, 0.1);
+            --title-color: #ffffff;
+            --shadow-glow: rgba(255, 0, 128, 0.15);
+        }
+
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            --text-main: #1a202c;
+            --text-sub: #4a5568;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.06);
+            --input-bg: #f8fafc;
+            --input-text: #1a202c;
+            --glass-btn-bg: rgba(0, 0, 0, 0.03);
+            --glass-btn-border: rgba(0, 0, 0, 0.08);
+            --title-color: #0f0c20;
+            --shadow-glow: rgba(0, 223, 216, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .top-nav {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .theme-toggle {
+            background: var(--glass-btn-bg);
+            border: 1px solid var(--glass-btn-border);
+            backdrop-filter: blur(10px);
+            color: var(--text-main);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .theme-toggle:hover { transform: scale(1.05); border-color: #ff0080; }
+
+        .register-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0080, #00dfd8);
+        }
+
+        .brand-header { text-align: center; margin-bottom: 30px; }
+
+        .brand-badge {
+            background: linear-gradient(90deg, #ff0080, #7928ca);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .brand-header h2 { font-size: 2rem; font-weight: 800; color: var(--title-color); }
+        .brand-header p { color: var(--text-sub); font-size: 0.9rem; margin-top: 5px; }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        
+        .form-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: var(--input-text);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #ff0080;
+            background: var(--card-bg);
+            box-shadow: 0 0 15px var(--shadow-glow);
+        }
+
+        .terms-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 25px; font-size: 0.85rem; color: var(--text-sub); }
+        .terms-container input { margin-top: 3px; accent-color: #ff0080; }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(90deg, #ff0080, #7928ca);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 0, 128, 0.3);
+        }
+
+        .btn-submit:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0, 223, 216, 0.4); }
+        .form-footer { text-align: center; margin-top: 25px; font-size: 0.9rem; color: var(--text-sub); }
+        .form-footer a { color: #00dfd8; text-decoration: none; font-weight: 600; }
+        .form-footer a:hover { text-decoration: underline; color: #ff0080; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="theme-toggle" id="themeBtn">🌙</button>
+    </div>
+
+    <div class="register-container">
+        <div class="brand-header">
+            <div class="brand-badge">H4X SMM PANEL</div>
+            <h2>Create Account</h2>
+            <p>Get instant access to wholesale rates</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" class="form-input" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="form-input" placeholder="name@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Create strong password" required>
+            </div>
+
+            <label class="terms-container">
+                <input type="checkbox" required>
+                <span>I agree to the Terms of Service & Privacy Policy.</span>
+            </label>
+
+            <button type="submit" class="btn-submit">Register Now</button>
+        </form>
+
+        <div class="form-footer">
+            Already have an account? <a href="login.html">Login here</a>
+        </div>
+    </div>
+
+    <!-- FIXED IMMUTABLE MODULE LOGIC FOR FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Aapka exact verified config data object
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHSkVCwXXeaxugZVKSAUoU-sfDYihf5aE",
+            authDomain: "monthlyd-a0aab.firebaseapp.com",
+            databaseURL: "https://monthlyd-a0aab-default-rtdb.firebaseio.com",
+            projectId: "monthlyd-a0aab",
+            storageBucket: "monthlyd-a0aab.firebasestorage.app",
+            messagingSenderId: "485433631211",
+            appId: "1:485433631211:web:a90709b699780e5ca4f9ae",
+            measurementId: "G-YF3477G5EV"
+        };
+
+        // App and Auth Initialization safely bounded in module lifecycle
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Standard Event listener attaching cleanly
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert("Registration Successful! Redirecting to login...");
+                window.location.href = "login.html";
+            } catch (error) {
+                alert("Firebase Error: " + error.message);
+            }
+        });
+
+        // Theme Switch Toggle logic inside block
+        const themeBtn = document.getElementById('themeBtn');
+        themeBtn.addEventListener('click', () => {
+            if (document.documentElement.getAttribute('data-theme') === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeBtn.textContent = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>
